@@ -5,3 +5,5 @@
 /robots.txt RobotsR GET
 
 / HomeR GET POST
+/wallet WalletR GET
+/register RegisterR GET POST

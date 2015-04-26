@@ -121,7 +121,9 @@ instance YesodAuth App where
     -- Override the above two destinations when a Referer: header is present
     redirectToReferer _ = True
 
-    getAuthId creds = runDB $ do
+    getAuthId creds = do
+      now <- liftIO getCurrentTime
+      runDB $ do
         x <- getBy $ UniqueUser $ credsIdent creds
         case x of
             Just (Entity uid _) -> return $ Just uid
@@ -129,6 +131,7 @@ instance YesodAuth App where
                 fmap Just $ insert User
                     { userIdent = credsIdent creds
                     , userPassword = Nothing
+                    , userLastLogin = now
                     }
 
     -- You can add other plugins like BrowserID, email or OAuth here

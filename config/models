@@ -1,12 +1,64 @@
 User
     ident Text
     password Text Maybe
+    lastLogin UTCTime default=now()
     UniqueUser ident
     deriving Typeable
+
 Email
     email Text
     user UserId Maybe
     verkey Text Maybe
     UniqueEmail email
+
+Api
+    user User
+    keyID Int64
+    vCode Text
+
+Character
+    auth Api
+    charID Int64
+    brokerRelations Int  default=0
+    accounting Int       default=0
+    charName Text
+    escrow Double        default=0
+    transaction_cu Int64 default=0
+    standings_cu Int64   default=0
+    balance_cu Int64     default=0
+    escrow_cu Int64      default=0
+    UniqueChar charID
+
+FactionStandings
+    char Character
+    factionID Int64
+    corpname Text
+    standing Double
+
+UserChars
+    user User
+    char Character
+
+CharOrders
+    char Character
+    typeID Int64
+    volRemaining Double
+    range Int64
+    orderID Int64
+    volEntered Int64
+    minVolume Int64
+    isBuy Bool
+    issueDate UTCTime
+    duration Int64
+    stationID Int64
+    regionID Int64
+    solarSystemID Int64
+    escrow Double
+    orderState Int64
+    accountID Int64
+    isCorp Bool
+
+
+
 
  -- By default this file is used in Model.hs (which is imported by Foundation.hs)

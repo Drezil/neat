@@ -2,7 +2,8 @@ module Handler.Home where
 
 import Import
 import Yesod.Form.Bootstrap3 (BootstrapFormLayout (..), renderBootstrap3,
-                              withSmallInput)
+                              withSmallInput, withPlaceholder, bfs,
+                              withAutofocus)
 
 -- This is a handler function for the GET request method on the HomeR
 -- resource pattern. All of your resource patterns are defined in
@@ -13,13 +14,27 @@ import Yesod.Form.Bootstrap3 (BootstrapFormLayout (..), renderBootstrap3,
 -- inclined, or create a single monolithic file.
 getHomeR :: Handler Html
 getHomeR = do
+    (loginWidget, loginEnctype) <- generateFormPost loginForm
+    defaultLayout $ do
+        setTitle "NEAT"
+        [whamlet|
+            <h1>
+                Welcome to NEAT.
+            <div>
+                Login
+                <form method=post action=@{HomeR} enctype=#{loginEnctype}>
+                    ^{loginWidget}
+                    <button>Submit
+               <a href=@{RegisterR}>Register Account
+        |]
+{-
     (formWidget, formEnctype) <- generateFormPost sampleForm
     let submission = Nothing :: Maybe (FileInfo, Text)
         handlerName = "getHomeR" :: Text
     defaultLayout $ do
         aDomId <- newIdent
         setTitle "Welcome To Yesod!"
-        $(widgetFile "homepage")
+        $(widgetFile "homepage")-}
 
 postHomeR :: Handler Html
 postHomeR = do
@@ -38,3 +53,8 @@ sampleForm :: Form (FileInfo, Text)
 sampleForm = renderBootstrap3 BootstrapBasicForm $ (,)
     <$> fileAFormReq "Choose a file"
     <*> areq textField (withSmallInput "What's on the file?") Nothing
+
+loginForm :: Form (Text, Text)
+loginForm = renderBootstrap3 BootstrapBasicForm $ (,)
+    <$> areq textField ((withAutofocus . withPlaceholder "Username") (bfs ("Username" :: Text))) Nothing
+    <*> areq passwordField (bfs ("Password" :: Text)) Nothing
