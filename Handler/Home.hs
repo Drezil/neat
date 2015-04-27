@@ -14,6 +14,7 @@ import Yesod.Form.Bootstrap3 (BootstrapFormLayout (..), renderBootstrap3,
 -- inclined, or create a single monolithic file.
 getHomeR :: Handler Html
 getHomeR = do
+    maid <- maybeAuthId
     (loginWidget, loginEnctype) <- generateFormPost loginForm
     defaultLayout $ do
         setTitle "NEAT"
@@ -21,11 +22,18 @@ getHomeR = do
             <h1>
                 Welcome to NEAT.
             <div>
-                Login
-                <form method=post action=@{HomeR} enctype=#{loginEnctype}>
-                    ^{loginWidget}
-                    <button>Submit
-               <a href=@{RegisterR}>Register Account
+                Current Auth-ID: #{show maid}.
+                $maybe u <- maid
+                    <p>
+                       Data: #{show u}<br>
+                       <a href=@{AuthR LogoutR}>Logout
+                $nothing
+                    Login
+                    <a href=@{AuthR LoginR}>Login-Page
+                    <form method=post action=@{HomeR} enctype=#{loginEnctype}>
+                        ^{loginWidget}
+                        <button>Submit
+                    <a href=@{RegisterR}>Register Account
         |]
 {-
     (formWidget, formEnctype) <- generateFormPost sampleForm
@@ -38,16 +46,20 @@ getHomeR = do
 
 postHomeR :: Handler Html
 postHomeR = do
-    ((result, formWidget), formEnctype) <- runFormPost sampleForm
-    let handlerName = "postHomeR" :: Text
-        submission = case result of
-            FormSuccess res -> Just res
-            _ -> Nothing
-
+    ((result, loginWidget), loginEnctype) <- runFormPost loginForm
     defaultLayout $ do
-        aDomId <- newIdent
-        setTitle "Welcome To Yesod!"
-        $(widgetFile "homepage")
+        setTitle "NEAT"
+        [whamlet|
+            <h1>
+                Welcome to NEAT.
+            <div>
+                Login
+                <form method=post action=@{HomeR} enctype=#{loginEnctype}>
+                    ^{loginWidget}
+                    <button>Submit
+               <a href=@{RegisterR}>Register Account
+        |]
+
 
 sampleForm :: Form (FileInfo, Text)
 sampleForm = renderBootstrap3 BootstrapBasicForm $ (,)
