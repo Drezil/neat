@@ -25,5 +25,6 @@ database:
   database: "_env:PGDATABASE:neat"
   poolsize: "_env:PGPOOLSIZE:10"
 
-copyright: Insert copyright statement here
+copyright: For all services on this Page a FULL API-Key is required! This page is run by an individual person, who is not affiliated with CCP in any way (other than he plays EVE). The service is currently in development and may break at any time. There is no backup-service and the data you enter may be lost when the servers harddrive crashes. CCP can not be held responsible for any malfunction of this page.
+           This page may improve your trading-ability, but we can't be made responsible for anything. Your PC may malfunction, explode or a llama may appear in your room - don't sue us for that.
 #analytics: UA-YOURCODE
