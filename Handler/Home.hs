@@ -47,18 +47,27 @@ getHomeR = do
 postHomeR :: Handler Html
 postHomeR = do
     ((result, loginWidget), loginEnctype) <- runFormPost loginForm
-    defaultLayout $ do
+    let loginfail err = defaultLayout $ do
         setTitle "NEAT"
         [whamlet|
             <h1>
                 Welcome to NEAT.
             <div>
+                <div class="alert alert-danger fade in">#{err}
                 Login
                 <form method=post action=@{HomeR} enctype=#{loginEnctype}>
                     ^{loginWidget}
                     <button>Submit
                <a href=@{RegisterR}>Register Account
         |]
+    case result of 
+      FormSuccess (u,pw) -> do
+                       login <- runDB $ selectFirst [UserIdent ==. u, UserPassword ==. (Just pw)] []
+                       case login of
+                         Nothing -> loginfail ("wrong username or password" :: Text)
+                         Just (Entity _ (User name _ _)) ->
+                                defaultLayout $ do [whamlet|<h1>Hello #{name}|]
+      _ -> loginfail ("wrong username or password" :: Text)
 
 
 sampleForm :: Form (FileInfo, Text)

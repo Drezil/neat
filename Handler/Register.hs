@@ -2,7 +2,7 @@ module Handler.Register where
 
 import Import
 import Yesod.Form.Bootstrap3
-import Yesod.Form.Functions
+import Handler.Home (getHomeR)
 
 getRegisterR :: Handler Html
 getRegisterR = do
@@ -18,16 +18,20 @@ getRegisterR = do
 postRegisterR :: Handler Html
 postRegisterR = do
                 ((result,registerWidget), registerEnctype) <- runFormPost registerForm
-                let again error = defaultLayout $ do
+                let again err = defaultLayout $ do
                         setTitle "Register"
                         [whamlet|
-                        <div class="alert alert-danger fade in"><strong>Error:</strong> #{error}
+                        <div class="alert alert-danger fade in"><strong>Error:</strong> #{err}
                         <h1>Register
                         <form method=post action=@{RegisterR} enctype=#{registerEnctype}>
                           ^{registerWidget}
                   |]
                 case result of
-                  FormSuccess a -> defaultLayout $ [whamlet|<h1> success|]
+                  FormSuccess (user,mail) -> do
+                        _ <- runDB $ do
+                            uid <- insert user
+                            insert $ Email mail uid Nothing
+                        getHomeR
                   FormFailure (err:_) -> again err
                   _ -> again "Invalid input"
 

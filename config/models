@@ -7,7 +7,7 @@ User
 
 Email
     email Text
-    user UserId Maybe
+    user UserId
     verkey Text Maybe
     UniqueEmail email
 
