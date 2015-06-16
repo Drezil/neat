@@ -2,6 +2,7 @@ module Handler.Register where
 
 import Import
 import Yesod.Form.Bootstrap3
+import Yesod.Auth.HashDB (setPassword)
 import Handler.Home (getHomeR)
 
 getRegisterR :: Handler Html
@@ -28,8 +29,9 @@ postRegisterR = do
                   |]
                 case result of
                   FormSuccess (user,mail) -> do
+                        u <- liftIO $ setPassword (fromMaybe "" $ userPassword user) user
                         _ <- runDB $ do
-                            uid <- insert user
+                            uid <- insert u 
                             insert $ Email mail uid Nothing
                         getHomeR
                   FormFailure (err:_) -> again err

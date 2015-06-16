@@ -8,6 +8,7 @@ import Yesod.Auth.BrowserId (authBrowserId)
 import Yesod.Default.Util   (addStaticContentExternal)
 import Yesod.Core.Types     (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
+import Yesod.Auth.HashDB    (authHashDB, getAuthIdHashDB)
 
 -- | The foundation datatype for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -121,21 +122,18 @@ instance YesodAuth App where
     -- Override the above two destinations when a Referer: header is present
     redirectToReferer _ = True
 
-    getAuthId creds = do
-      now <- liftIO getCurrentTime
+    getAuthId creds = getAuthIdHashDB AuthR (Just . UniqueUser) creds --authenticate on own site
+                      --TODO: Authenticate via OAuth2
+    {-do
       runDB $ do
         x <- getBy $ UniqueUser $ credsIdent creds
         case x of
             Just (Entity uid _) -> return $ Just uid
-            Nothing -> do
-                fmap Just $ insert User
-                    { userIdent = credsIdent creds
-                    , userPassword = Nothing
-                    , userLastLogin = now
-                    }
+            Nothing -> return Nothing-}
 
     -- You can add other plugins like BrowserID, email or OAuth here
     authPlugins _ = [ authBrowserId def
+                    , authHashDB (Just . UniqueUser)
                     ]
 
     authHttpManager = getHttpManager

@@ -1,9 +1,6 @@
 module Handler.Home where
 
 import Import
-import Yesod.Form.Bootstrap3 (BootstrapFormLayout (..), renderBootstrap3,
-                              withSmallInput, withPlaceholder, bfs,
-                              withAutofocus)
 
 -- This is a handler function for the GET request method on the HomeR
 -- resource pattern. All of your resource patterns are defined in
@@ -15,7 +12,6 @@ import Yesod.Form.Bootstrap3 (BootstrapFormLayout (..), renderBootstrap3,
 getHomeR :: Handler Html
 getHomeR = do
     maid <- maybeAuthId
-    (loginWidget, loginEnctype) <- generateFormPost loginForm
     defaultLayout $ do
         setTitle "NEAT"
         [whamlet|
@@ -23,17 +19,16 @@ getHomeR = do
                 Welcome to NEAT.
             <div>
                 Current Auth-ID: #{show maid}.
+            <div>
                 $maybe u <- maid
                     <p>
                        Data: #{show u}<br>
                        <a href=@{AuthR LogoutR}>Logout
                 $nothing
-                    Login
-                    <a href=@{AuthR LoginR}>Login-Page
-                    <form method=post action=@{HomeR} enctype=#{loginEnctype}>
-                        ^{loginWidget}
-                        <button>Submit
-                    <a href=@{RegisterR}>Register Account
+                    <p>
+                        <a href=@{AuthR LoginR}>Login
+                    <p>
+                        <a href=@{RegisterR}>Register Account
         |]
 {-
     (formWidget, formEnctype) <- generateFormPost sampleForm
@@ -46,7 +41,10 @@ getHomeR = do
 
 postHomeR :: Handler Html
 postHomeR = do
-    ((result, loginWidget), loginEnctype) <- runFormPost loginForm
+    defaultLayout $ [whamlet|
+    <h1>nothing to see here. Stuff coming soon (tm).
+    |]
+{-    ((result, loginWidget), loginEnctype) <- runFormPost loginForm
     let loginfail err = defaultLayout $ do
         setTitle "NEAT"
         [whamlet|
@@ -67,15 +65,10 @@ postHomeR = do
                          Nothing -> loginfail ("wrong username or password" :: Text)
                          Just (Entity _ (User name _ _)) ->
                                 defaultLayout $ do [whamlet|<h1>Hello #{name}|]
-      _ -> loginfail ("wrong username or password" :: Text)
+      _ -> loginfail ("wrong username or password" :: Text)-}
 
 
-sampleForm :: Form (FileInfo, Text)
-sampleForm = renderBootstrap3 BootstrapBasicForm $ (,)
-    <$> fileAFormReq "Choose a file"
-    <*> areq textField (withSmallInput "What's on the file?") Nothing
-
-loginForm :: Form (Text, Text)
+{-loginForm :: Form (Text, Text)
 loginForm = renderBootstrap3 BootstrapBasicForm $ (,)
     <$> areq textField ((withAutofocus . withPlaceholder "Username") (bfs ("Username" :: Text))) Nothing
-    <*> areq passwordField (bfs ("Password" :: Text)) Nothing
+    <*> areq passwordField (bfs ("Password" :: Text)) Nothing-}
