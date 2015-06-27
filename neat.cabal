@@ -55,6 +55,7 @@ library
                  , yesod-static                  >= 1.4.0.3    && < 1.5
                  , yesod-form                    >= 1.4.0      && < 1.5
                  , yesod-auth-hashdb             >= 1.4.0      && < 1.5
+                 , yesod-auth-oauth2             >= 0.1.2
                  , classy-prelude                >= 0.10.2
                  , classy-prelude-conduit        >= 0.10.2
                  , classy-prelude-yesod          >= 0.10.2

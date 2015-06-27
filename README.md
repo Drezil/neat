@@ -32,4 +32,6 @@ At the moment there is nothing much to see here but a bit of playing around with
     GRANT ALL ON DATABASE neat TO neat;
     ```
 
-6. run yesod with ```yesod devel```
+6. install dependencies and setup sandbox (invoke install.sh)
+
+7. run yesod with ```yesod devel```
