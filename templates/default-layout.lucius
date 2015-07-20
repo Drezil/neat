@@ -7,6 +7,7 @@ html {
 body {
   /* Margin bottom by footer height */
   margin-bottom: 60px;
+  margin-top: 60px;
 }
 .footer {
   font-size:x-small;

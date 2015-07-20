@@ -1,15 +1,18 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Foundation where
 
 import Import.NoFoundation
 import Database.Persist.Sql (ConnectionPool, runSqlPool)
 import Text.Hamlet          (hamletFile)
 import Text.Jasmine         (minifym)
-import Yesod.Auth.BrowserId (authBrowserId)
+--import Yesod.Auth.BrowserId (authBrowserId)
 import Yesod.Default.Util   (addStaticContentExternal)
 import Yesod.Core.Types     (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
-import Yesod.Auth.HashDB    (authHashDB)
-import Yesod.Auth.OAuth2.EveOnline (oauth2EveImage,ImageType(..))
+--import Yesod.Auth.HashDB    (authHashDB)
+import Yesod.Auth.OAuth2.EveOnline (oauth2Eve,WidgetType(..))
+import Data.Time.Format     (parseTimeM)
 
 -- | The foundation datatype for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -47,7 +50,7 @@ instance Yesod App where
 
     -- Store session data on the client in encrypted cookies,
     -- default session idle timeout is 120 minutes
-    makeSessionBackend _ = fmap Just $ defaultClientSessionBackend
+    makeSessionBackend _ = Just <$> defaultClientSessionBackend
         120    -- timeout in minutes
         "config/client_session_key.aes"
 
@@ -124,37 +127,45 @@ instance YesodAuth App where
     redirectToReferer _ = True
 
     --authenticate :: Creds master -> HandlerT master IO (AuthenticationResult master)
-    authenticate creds = do
+    authenticate creds =
       runDB $ do
         x <- getBy $ UniqueUser $ credsIdent creds
         now <- liftIO getCurrentTime
+        -- extra is charName tokenType and expires
+        liftIO $ print extra
         case x of
             Just (Entity uid _) -> do
                                    update uid [UserLastLogin =. now]
                                    return $ Authenticated uid
-            Nothing -> Authenticated <$> insert User
-                    { userIdent = credsIdent creds
-                    , userPassword = Nothing
-                    , userLastLogin = now
-                    }
-                -- return $ UserError Msg.InvalidLogin
-    {-getAuthId creds = do
-           auth <- authenticate creds
-           return $ case auth of
-               Authentication auid -> Just auid
-               _ -> Nothing-}
-    --getAuthIdHashDB AuthR (Just . UniqueUser) creds --authenticate on own site
-    {-do
-      runDB $ do
-        x <- getBy $ UniqueUser $ credsIdent creds
-        case x of
-            Just (Entity uid _) -> return $ Just uid
-            Nothing -> return Nothing-}
+            Nothing -> case fromExtra of
+                       Just (expiry,token,name,cid) -> Authenticated <$> insert User
+                                   { userIdent = credsIdent creds
+                                   , userName = name
+                                   , userCharId = cid
+                                   , userPassword = Nothing
+                                   , userLastLogin = now
+                                   , userTokenExpires = expiry
+                                   , userAccessToken = token
+                                   }
+                       Nothing -> return $ ServerError "Problems extracting Access-Token"
+        where
+          extra = credsExtra creds
+          fromExtra = do
+                    expires <- getFromExtra "expires" extra
+                    token   <- getFromExtra "accessToken" extra
+                    name    <- getFromExtra "charName" extra
+                    cid     <- getFromExtra "charId" extra >>= readMay
+                    expiry  <- parseTimeM True defaultTimeLocale "%FT%X" (unpack expires) :: Maybe UTCTime
+                                                  -- %F = YYYY-MM-DD
+                                                  -- %X = HH-MM-SS
+                    return (expiry,token,name,cid)
+          getFromExtra :: Text -> [(Text,Text)] -> Maybe Text
+          getFromExtra s = fmap snd . listToMaybe . filter ((==) s . fst)
 
     -- You can add other plugins like BrowserID, email or OAuth here
-    authPlugins _ = [ authBrowserId def
-                    , authHashDB (Just . UniqueUser)
-                    , oauth2EveImage "" "" BigBlack
+    authPlugins _ = [ --authBrowserId def
+                    --, authHashDB (Just . UniqueUser)
+                      oauth2Eve "346ee0ad8f974e30be6bf422f40d891b" "kXnZd7f3pmRCvePiBPQcTL2aRcgBHSgPRxc6VNYT" BigBlack
                     ]
 
     authHttpManager = getHttpManager

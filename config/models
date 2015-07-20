@@ -1,7 +1,11 @@
 User
     ident Text
+    name Text
+    charId Int64
     password Text Maybe
-    lastLogin UTCTime default=now()
+    lastLogin UTCTime
+    tokenExpires UTCTime
+    accessToken Text
     UniqueUser ident
     deriving Typeable
 
@@ -15,6 +19,7 @@ Api
     user User
     keyID Int64
     vCode Text
+    UniqueApiUser user
 
 Character
     auth Api

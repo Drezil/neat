@@ -6,4 +6,5 @@
 
 / HomeR GET POST
 /wallet WalletR GET
-/register RegisterR GET POST
+-- /register RegisterR GET POST
+/settings SettingsR GET POST

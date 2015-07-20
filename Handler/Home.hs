@@ -12,23 +12,29 @@ import Import
 getHomeR :: Handler Html
 getHomeR = do
     maid <- maybeAuthId
+    muser <- case maid of
+       Just uid -> runDB $ get uid
+       Nothing -> return $ Nothing
     defaultLayout $ do
         setTitle "NEAT"
         [whamlet|
             <h1>
-                Welcome to NEAT.
-            <div>
-                Current Auth-ID: #{show maid}.
+                $maybe u <- muser
+                    Welcome back #{userName u}
+                $nothing
+                    Welcome to NEAT.
             <div>
                 $maybe u <- maid
                     <p>
                        Data: #{show u}<br>
                        <a href=@{AuthR LogoutR}>Logout
+                       <br>
+                       <a href=@{WalletR}>Wallet
+                       <br>
+                       <a href=@{SettingsR}>Settings
                 $nothing
                     <p>
                         <a href=@{AuthR LoginR}>Login
-                    <p>
-                        <a href=@{RegisterR}>Register Account
         |]
 {-
     (formWidget, formEnctype) <- generateFormPost sampleForm

@@ -1,0 +1,19 @@
+<div class="container">
+  <div class="panel panel-default">
+    <div class="panel-heading">Auth-Key settings
+    <div class="panel-body">
+      $maybe w <- insertionWidget
+        ^{w}
+      <form role=form method=post action=@{SettingsR} enctype=#{formEnctype} class="form-horizontal">
+        ^{formWidget}
+      $if validKey
+        <div class="panel panel-success">
+          <div class="panel-heading">API Key
+          <div class="panel-body">
+            <p>This auth-key is working.
+      $else
+        <div class="panel panel-danger">
+          <div class="panel-heading">API Key
+          <div class="panel-body">
+            <p>This auth-key is not suitable.<br>
+              <a href="https://support.eveonline.com/api/Key/CreatePredefined/132648971/275335845">Create API-Key
