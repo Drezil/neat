@@ -16,7 +16,7 @@ Email
     UniqueEmail email
 
 Api
-    user User
+    user UserId
     keyID Int64
     vCode Text
     UniqueApiUser user
@@ -39,10 +39,6 @@ FactionStandings
     factionID Int64
     corpname Text
     standing Double
-
-UserChars
-    user User
-    char Character
 
 CharOrders
     char Character

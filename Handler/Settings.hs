@@ -11,9 +11,9 @@ import qualified Data.Text.Lazy as T
 import qualified Data.ByteString.Lazy.Char8 as B
 
 getSettingsR :: Handler Html
-getSettingsR = loginOrDo $ (\u -> do
-               apiKey <- runDB $ getBy $ UniqueApiUser u
-               (formWidget, formEnctype) <- generateFormPost $ renderBootstrap3 authFormLayout (authKeyForm (entityVal <$> apiKey) u)
+getSettingsR = loginOrDo $ (\(uid,_) -> do
+               apiKey <- runDB $ getBy $ UniqueApiUser uid
+               (formWidget, formEnctype) <- generateFormPost $ renderBootstrap3 authFormLayout (authKeyForm (entityVal <$> apiKey) uid)
                man <- getHttpManager <$> ask
                validKey <- case apiKey of
                              Just (Entity _ key) -> liftIO $ checkApiKey key man
@@ -24,18 +24,18 @@ getSettingsR = loginOrDo $ (\u -> do
 
 
 postSettingsR :: Handler Html
-postSettingsR = loginOrDo $ (\u -> do
-                apiKey <- runDB $ getBy $ UniqueApiUser u
-                ((result,formWidget),formEnctype) <- runFormPost $ renderBootstrap3 authFormLayout (authKeyForm (entityVal <$> apiKey) u)
+postSettingsR = loginOrDo $ (\(uid,_) -> do
+                apiKey <- runDB $ getBy $ UniqueApiUser uid
+                ((result,formWidget),formEnctype) <- runFormPost $ renderBootstrap3 authFormLayout (authKeyForm (entityVal <$> apiKey) uid)
                 (success, msg) <- case result of
-                  FormSuccess api  -> do mapi <- runDB $ getBy $ UniqueApiUser u
+                  FormSuccess api  -> do mapi <- runDB $ getBy $ UniqueApiUser uid
                                          case mapi of
                                            Just (Entity aid _) -> runDB $ replace aid api
                                            Nothing -> runDB $ insert_ api
                                          return (True,[whamlet|Successful inserted Key|])
                   FormFailure errs -> return (False,[whamlet|Error:<br>#{concat $ intersperse "<br>" errs}|])
                   FormMissing      -> return (False,[whamlet|Error: No such Form|])
-                apiKey' <- runDB $ getBy $ UniqueApiUser u
+                apiKey' <- runDB $ getBy $ UniqueApiUser uid
                 man <- getHttpManager <$> ask
                 validKey <- case apiKey' of
                               Just (Entity _ key) -> liftIO $ checkApiKey key man
@@ -63,7 +63,7 @@ checkApiKey (Api _ key code) manager = do
           _ -> return False
   `catch` (\ (_ :: HttpException) -> return False)
 
-authKeyForm :: Maybe Api -> User -> AForm Handler Api
+authKeyForm :: Maybe Api -> Key User -> AForm Handler Api
 authKeyForm ma u = Api
              <$> pure u
              <*> areq intField (withPlaceholder "keyID" "keyID") (apiKeyID <$> ma)
