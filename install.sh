@@ -8,4 +8,4 @@ cd ..
 cabal sandbox init
 cabal sandbox add-source deps/yesod-auth-oauth2
 cabal sandbox add-source deps/eve-api
-cabal install --only-dependencies
+cabal install --only-dependencies --reorder-goals
