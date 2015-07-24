@@ -84,7 +84,7 @@ library
                  , unordered-containers
                  , containers
                  , vector
-                 , time
+                 , time                          >=1.5
                  , HTTP
                  , xml-lens
                  , xml-conduit
