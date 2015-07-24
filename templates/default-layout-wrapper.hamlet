@@ -34,12 +34,13 @@ $newline never
               <span class="icon-bar">
               <span class="icon-bar">
               <span class="icon-bar">
-            <a class="navbar-brand" href="#">Brand
+            <a class="navbar-brand" href="@{HomeR}">NEAT
 
           <!-- Collect the nav links, forms, and other content for toggling -->
           <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
               <li><a href="@{HomeR}">Home</a>
+              <li><a href="@{WalletR}">Transactions</a>
               <li><a href="@{SettingsR}">Settings</a>
               <!--li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span>
