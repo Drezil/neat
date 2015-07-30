@@ -66,8 +66,8 @@ instance Yesod App where
 
         pc <- widgetToPageContent $ do
             addStylesheet $ StaticR css_bootstrap_css
-            addScriptRemote $ "https://code.jquery.com/jquery-2.1.4.min.js"
-            addScriptRemote $ "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"
+            addScript $ StaticR js_jquery_js
+            addScript $ StaticR js_bootstrap_js
             $(widgetFile "default-layout")
         withUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
 
