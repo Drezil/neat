@@ -2,7 +2,7 @@ module Handler.Wallet where
 
 import Import
 
-import Eve.Api.Char
+import Eve.Api.Char.MarketOrders
 import Eve.Api.Types as T
 
 getWalletR :: Handler Html
@@ -11,7 +11,7 @@ getWalletR = loginOrDo $ (\(uid,user) -> do
              apiKey <- runDB $ getBy $ UniqueApiUser uid
              acc <- case apiKey of
                       Just (Entity _ (Api _ k v)) -> do
-                          a <- liftIO $ getStandings man (mkComplete k v (userCharId user))
+                          a <- liftIO $ getMarketOrders man (mkComplete k v (userCharId user))
                           return (Just a)
                       Nothing -> return Nothing
              defaultLayout $ [whamlet|
