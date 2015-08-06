@@ -7,6 +7,7 @@ import qualified Eve.Api.Char.WalletTransactions as WT
 import qualified Eve.Api.Types as T
 import qualified Eve.Api.Char.Standings as ST
 import qualified Eve.Api.Char.Skills as SK
+import Database.Persist.Sql
 
 accountingId :: Int64
 accountingId = 16622
@@ -56,8 +57,21 @@ getUpdateR = loginOrDo (\(uid,user) -> do
                                                            update uid [UserWalletTimeout =. time']
                                                            insertMany_ (migrateTransaction uid <$> trans')
                        _ -> return ()
-                 --let sql = "update"
-                 --runDB $ rawExecute sql [uid]
+                   let sql = "update transaction t \
+                           set \
+                             fee = 100*(quantity*(price_cents/100)*(0.0100-0.0005*ch.br)/exp(0.1000*COALESCE((select faction_standing from faction_standings where faction_id=c.\"factionID\" and \"user\"=t.\"user\"),0)+0.0400*COALESCE((select corp_standing from corp_standings where corp_id=c.\"corporationID\" and \"user\"=t.\"user\"),0))), \
+                             tax = 100*(CASE WHEN t.trans_is_sell THEN quantity*(price_cents/100)*(0.015-(0.0015*ch.acc)) ELSE 0 END) \
+                           from \
+                             \"staStations\" s \
+                             join \"crpNPCCorporations\" c on (s.\"corporationID\" = c.\"corporationID\"),\
+                             \"user\" ch \
+                           where \
+                             t.station_id = s.\"stationID\" and \
+                             t.\"user\" = ch.id and \
+                             t.fee IS NULL and t.tax IS NULL and \
+                             t.no_tax = false and \
+                             t.user=?"
+                   runDB $ rawExecute sql [toPersistValue uid]
                redirect WalletR
              )
 
