@@ -148,6 +148,11 @@ instance YesodAuth App where
                                    , userLastLogin = now
                                    , userTokenExpires = expiry
                                    , userAccessToken = token
+                                   , userWalletTimeout = now
+                                   , userStandingsTimeout = now
+                                   , userSkillTimeout = now
+                                   , userAcc = 0
+                                   , userBr = 0
                                    }
                        Nothing -> return $ ServerError "Problems extracting Access-Token"
         where

@@ -24,6 +24,7 @@ library
                      Handler.Home
                      Handler.Wallet
                      Handler.Settings
+                     Handler.Update
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT

@@ -6,6 +6,11 @@ User
     lastLogin UTCTime
     tokenExpires UTCTime
     accessToken Text
+    walletTimeout UTCTime
+    standingsTimeout UTCTime
+    skillTimeout UTCTime
+    br Int -- Broker-Relations-Skill
+    acc Int -- Accounting-Skill
     UniqueUser ident
     deriving Typeable
 
@@ -21,45 +26,39 @@ Api
     vCode Text
     UniqueApiUser user
 
-Character
-    auth Api
-    charID Int64
-    brokerRelations Int  default=0
-    accounting Int       default=0
-    charName Text
-    escrow Double        default=0
-    transaction_cu Int64 default=0
-    standings_cu Int64   default=0
-    balance_cu Int64     default=0
-    escrow_cu Int64      default=0
-    UniqueChar charID
+Transaction
+    user UserId
+    dateTime UTCTime
+    transId Int64
+    quantity Int64
+    inStock Int64 -- still to process. Positive for Buy-Orders, negative for Sell
+    typeName Text
+    typeId Int64
+    priceCents Int64
+    clientId Int64
+    clientName Text
+    stationId Int64
+    stationName Text
+    transIsSell Bool -- True = sell-order, False = buy-order
+    transForCorp Bool -- True = corp-order, False = personal order
+    journalTransId Int64
+    profit Int64 Maybe --profit on this transaction
+    tax Int64 Maybe -- tax paid for selling
+    fee Int64 Maybe -- broker-fee for putting order up
+    secondsToSell Int64 Maybe --avg time this item needed to sell
+    noTax Bool -- True if no taxes should be calculated
+
+CorpStandings
+    user UserId
+    corpId Int64
+    corpName Text
+    corpStanding Double
 
 FactionStandings
-    char Character
-    factionID Int64
-    corpname Text
-    standing Double
-
-CharOrders
-    char Character
-    typeID Int64
-    volRemaining Double
-    range Int64
-    orderID Int64
-    volEntered Int64
-    minVolume Int64
-    isBuy Bool
-    issueDate UTCTime
-    duration Int64
-    stationID Int64
-    regionID Int64
-    solarSystemID Int64
-    escrow Double
-    orderState Int64
-    accountID Int64
-    isCorp Bool
-
-
+    user UserId
+    factionId Int64
+    factionName Text
+    factionStanding Double
 
 
  -- By default this file is used in Model.hs (which is imported by Foundation.hs)

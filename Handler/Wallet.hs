@@ -2,23 +2,26 @@ module Handler.Wallet where
 
 import Import
 
-import Eve.Api.Char.MarketOrders
-import Eve.Api.Types as T
+import Data.Time.Clock
 
 getWalletR :: Handler Html
-getWalletR = loginOrDo $ (\(uid,user) -> do
-             man <- getHttpManager <$> ask
-             apiKey <- runDB $ getBy $ UniqueApiUser uid
-             acc <- case apiKey of
-                      Just (Entity _ (Api _ k v)) -> do
-                          a <- liftIO $ getMarketOrders man (mkComplete k v (userCharId user))
-                          return (Just a)
-                      Nothing -> return Nothing
-             defaultLayout $ [whamlet|
-             <h1>Transactions in the last xx hours
+getWalletR = getWalletDetailsR 6 7
 
-             <h1>Statistices for the last xx days
-             #{show acc}
+getWalletDetailsR :: Int64 -> Int64 -> Handler Html
+getWalletDetailsR hrs days = loginOrDo (\(uid,user) -> do
+             now <- liftIO getCurrentTime
+             trans <- runDB $ selectList [TransactionDateTime >. (addUTCTime ((fromIntegral $ -(hrs*3600)) :: NominalDiffTime) now)] [Desc TransactionDateTime]
+             defaultLayout $ [whamlet|
+             <a href=@{WalletDetailsR 168 days}>show last 7 days
+             <h1>Transactions in the last #{hrs} hours
+             <table>
+               $forall Entity _ t <- trans
+                 <tr>
+                   <td>#{show $ transactionDateTime t}
+                   <td>#{transactionPriceCents t}
+                   <td>#{transactionClientName t}
+
+             <h1>Statistices for the last #{days} days
              |]
              )
 

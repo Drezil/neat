@@ -34,4 +34,14 @@ At the moment there is nothing much to see here but a bit of playing around with
 
 6. install dependencies and setup sandbox (invoke install.sh)
 
-7. run yesod with ```yesod devel```
+7. Get the current postgres-data-dump from `https://www.fuzzwork.co.uk/dump/postgres-latest.dmp.bz2` and restore it into the `neat` database:
+
+   ```
+   sudo su postgres
+   cd /tmp
+   wget https://www.fuzzwork.co.uk/dump/postgres-latest.dmp.bz2
+   bzip2 -d postgres-latest.dmp.bz2
+   pg_restore -d neat postgres-latest.dmp
+   ```
+
+8. run yesod with ```yesod devel```

@@ -6,5 +6,7 @@
 
 / HomeR GET POST
 /wallet WalletR GET
+/wallet/#Int64/#Int64 WalletDetailsR GET
 -- /register RegisterR GET POST
 /settings SettingsR GET POST
+/update UpdateR GET
