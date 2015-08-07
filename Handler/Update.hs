@@ -8,7 +8,6 @@ import qualified Eve.Api.Types as T
 import qualified Eve.Api.Char.Standings as ST
 import qualified Eve.Api.Char.Skills as SK
 import Database.Persist.Sql
-import qualified Debug.Trace as Debug
 
 accountingId :: Int64
 accountingId = 16622
@@ -97,11 +96,7 @@ updateProfits dat = updateProfits' [] dat
                                      t' = t {transactionInStock = transactionInStock t + m}
                                      ct' = ct {transactionInStock = transactionInStock ct - m}
                                      prof' = (transactionPriceCents t - transactionPriceCents ct) * m
-                                     (t'',ct'') = if prof' > 0 then
-                                                   Debug.trace ("Item "++show (transactionTypeId t)++" has profit "++show prof'++" ("++show (transactionPriceCents t)++" - "++show (transactionPriceCents ct)++")*"++show m)
-                                                     $ updateProfits'' (Entity et (t' { transactionProfit = maybe (Just prof') (\a -> Just (a + prof')) (transactionProfit t')})) ts
-                                                  else
-                                                   updateProfits'' (Entity et (t' { transactionProfit = maybe (Just prof') (\a -> Just (a + prof')) (transactionProfit t')})) ts
+                                     (t'',ct'') = updateProfits'' (Entity et (t' { transactionProfit = maybe (Just prof') (\a -> Just (a + prof')) (transactionProfit t')})) ts
                                  in
                                    (t'' ,(Entity cet ct'):ct'')
                                else
