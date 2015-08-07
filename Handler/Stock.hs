@@ -7,7 +7,7 @@ getStockR = loginOrDo (\(uid,user) -> do
               items <- runDB $ selectList [TransactionUser ==. uid, TransactionInStock >. 0] [Asc TransactionTypeName]
               defaultLayout $ [whamlet|
              <h1>Current Stock
-             <table>
+             <table .table>
                <tr>
                  <th>Item name
                  <th>Quantity

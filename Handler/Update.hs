@@ -8,6 +8,7 @@ import qualified Eve.Api.Types as T
 import qualified Eve.Api.Char.Standings as ST
 import qualified Eve.Api.Char.Skills as SK
 import Database.Persist.Sql
+import Data.Time.Clock
 
 accountingId :: Int64
 accountingId = 16622
@@ -93,10 +94,15 @@ updateProfits dat = updateProfits' [] dat
                                   && transactionInStock ct > 0
                                   && transactionInStock t < 0 then
                                  let m = min (transactionInStock t * (-1)) (transactionInStock ct)
-                                     t' = t {transactionInStock = transactionInStock t + m}
+                                     t' = t { transactionInStock = transactionInStock t + m
+                                            , transactionProfit  = maybe (Just prof') (\a -> Just (a + prof')) (transactionProfit t)
+                                            , transactionSecondsToSell = maybe (Just secs) (\a -> Just ((a*done + secs * m)`div`(done+m))) (transactionSecondsToSell t)
+                                            }
                                      ct' = ct {transactionInStock = transactionInStock ct - m}
                                      prof' = (transactionPriceCents t - transactionPriceCents ct) * m
-                                     (t'',ct'') = updateProfits'' (Entity et (t' { transactionProfit = maybe (Just prof') (\a -> Just (a + prof')) (transactionProfit t')})) ts
+                                     secs = round $ diffUTCTime (transactionDateTime t) (transactionDateTime ct)
+                                     done = (transactionQuantity t + transactionInStock t)
+                                     (t'',ct'') = updateProfits'' (Entity et t') ts
                                  in
                                    (t'' ,(Entity cet ct'):ct'')
                                else
