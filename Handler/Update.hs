@@ -8,6 +8,7 @@ import qualified Eve.Api.Types as T
 import qualified Eve.Api.Char.Standings as ST
 import qualified Eve.Api.Char.Skills as SK
 import Database.Persist.Sql
+import qualified Debug.Trace as Debug
 
 accountingId :: Int64
 accountingId = 16622
@@ -57,6 +58,7 @@ getUpdateR = loginOrDo (\(uid,user) -> do
                                                            update uid [UserWalletTimeout =. time']
                                                            insertMany_ (migrateTransaction uid <$> trans')
                        _ -> return ()
+                   -- update taxes
                    let sql = "update transaction t \
                            set \
                              fee = 100*(quantity*(price_cents/100)*(0.0100-0.0005*ch.br)/exp(0.1000*COALESCE((select faction_standing from faction_standings where faction_id=c.\"factionID\" and \"user\"=t.\"user\"),0)+0.0400*COALESCE((select corp_standing from corp_standings where corp_id=c.\"corporationID\" and \"user\"=t.\"user\"),0))), \
@@ -72,8 +74,46 @@ getUpdateR = loginOrDo (\(uid,user) -> do
                              t.no_tax = false and \
                              t.user=?"
                    runDB $ rawExecute sql [toPersistValue uid]
+                   -- calculate profits
+                   runDB $ do
+                     trans <- updateProfits <$> selectList [TransactionUser ==. uid, TransactionInStock !=. 0] [Asc TransactionDateTime]
+                     mapM_ (\(Entity eid t) -> replace eid t) trans
                redirect WalletR
              )
+
+updateProfits :: [Entity Transaction] -> [Entity Transaction]
+updateProfits [] = []
+updateProfits dat = updateProfits' [] dat
+  where
+  updateProfits' seen (x@(Entity _ tx):xs) = if transactionTransIsSell tx then
+                         let (x',xs') = updateProfits'' x seen
+                             updateProfits'' :: Entity Transaction -> [Entity Transaction] -> (Entity Transaction, [Entity Transaction])
+                             updateProfits'' o [] = (o,[])
+                             updateProfits'' o@(Entity et t) ((Entity cet ct):ts) =
+                               if transactionTypeId t == transactionTypeId ct
+                                  && transactionInStock ct > 0
+                                  && transactionInStock t < 0 then
+                                 let m = min (transactionInStock t * (-1)) (transactionInStock ct)
+                                     t' = t {transactionInStock = transactionInStock t + m}
+                                     ct' = ct {transactionInStock = transactionInStock ct - m}
+                                     prof' = (transactionPriceCents t - transactionPriceCents ct) * m
+                                     (t'',ct'') = if prof' > 0 then
+                                                   Debug.trace ("Item "++show (transactionTypeId t)++" has profit "++show prof'++" ("++show (transactionPriceCents t)++" - "++show (transactionPriceCents ct)++")*"++show m)
+                                                     $ updateProfits'' (Entity et (t' { transactionProfit = maybe (Just prof') (\a -> Just (a + prof')) (transactionProfit t')})) ts
+                                                  else
+                                                   updateProfits'' (Entity et (t' { transactionProfit = maybe (Just prof') (\a -> Just (a + prof')) (transactionProfit t')})) ts
+                                 in
+                                   (t'' ,(Entity cet ct'):ct'')
+                               else
+                                 let
+                                   (t'',ct'') = updateProfits'' o ts
+                                 in
+                                   (t'',(Entity cet ct):ct'')
+                         in
+                         updateProfits' (xs'++[x']) xs
+                       else
+                         updateProfits' (seen++[x]) xs
+  updateProfits' seen [] = seen
 
 findLvl :: Int64 -> [SK.Skill] -> Int
 findLvl sid skills = case find (\(SK.Skill sid' _ _ _) -> sid' == sid) skills of
