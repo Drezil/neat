@@ -1,3 +1,6 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE OverloadedStrings #-}
+
 module Handler.Wallet where
 
 import Import
@@ -5,6 +8,23 @@ import Import
 import Data.List (unfoldr)
 import Data.Time.Clock
 import Text.Printf
+import Database.Persist.Sql
+
+data Profit = Profit
+              { date :: Day
+              , buy :: Int64
+              , sell :: Int64
+              , profit :: Int64
+              , bf :: Int64
+              , tt :: Int64
+              } deriving (Show, Eq)
+
+instance RawSql Profit where
+  rawSqlCols _ _ = (6,[])
+  rawSqlColCountReason _ = "date, buy, sell, profit, bf, tt"
+  rawSqlProcessRow [PersistDay t, PersistInt64 b, PersistInt64 s,
+               PersistInt64 p, PersistInt64 bf, PersistInt64 tt] = Right (Profit t b s p bf tt)
+  rawSqlProcessRow a = Left ("Wrong kinds of Arguments:" <> (pack $ show a))
 
 buttonIntervals :: [(Int64,String)]
 buttonIntervals = [ (2,"2 hours")
@@ -16,6 +36,9 @@ buttonIntervals = [ (2,"2 hours")
                   , (31*24,"31 days")
                   ]
 
+profitIntervals :: [Int64]
+profitIntervals = [7,14,31]
+
 getWalletR :: Handler Html
 getWalletR = getWalletDetailsR 6 7
 
@@ -23,6 +46,22 @@ getWalletDetailsR :: Int64 -> Int64 -> Handler Html
 getWalletDetailsR hrs days = loginOrDo (\(uid,user) -> do
              now <- liftIO getCurrentTime
              trans <- runDB $ selectList [TransactionDateTime >. (addUTCTime ((fromIntegral $ -(hrs*3600)) :: NominalDiffTime) now)] [Desc TransactionDateTime]
+             let profitquery = "select \
+                                  min(date(date_time at time zone 'utc')) as date,\
+                                  sum(CASE WHEN NOT trans_is_sell THEN quantity*price_cents ELSE 0 END) :: bigint as buy,\
+                                  sum(CASE WHEN trans_is_sell THEN quantity*price_cents ELSE 0 END) :: bigint as sell,\
+                                  sum(COALESCE(profit,0)) :: bigint as profit,\
+                                  sum(fee) :: bigint as brokerfee,\
+                                  sum(tax) :: bigint as transactiontax \
+                                from transaction \
+                                where \
+                                  \"user\"=? \
+                                  and extract(day from (now() at time zone 'utc')-date(date_time at time zone 'utc')) < ? \
+                                group by \
+                                  extract(day from (now() at time zone 'utc')-date(date_time at time zone 'utc')) \
+                                order by \
+                                  extract(day from (now() at time zone 'utc')-date(date_time at time zone 'utc')) asc"
+             (profits :: [Profit]) <- runDB $ rawSql profitquery [toPersistValue uid, toPersistValue days]
              defaultLayout $ [whamlet|
              <div .panel .panel-default>
                <div .panel-heading>Transactions in the last #{hrs} hours:
@@ -94,9 +133,36 @@ getWalletDetailsR hrs days = loginOrDo (\(uid,user) -> do
 
              <div .panel .panel-default>
                <div .panel-heading>Statistices for the last #{days} days:
-               <table .table .table-striped .table-condensed .small>
+               <div .btn-group .btn-group-justified role="group">
+                 $forall days' <- profitIntervals
+                   $if days == days'
+                     <a href="@{WalletDetailsR hrs days'}" .btn .active role="button">#{days'} days
+                   $else
+                     <a href="@{WalletDetailsR hrs days'}" .btn role="button">#{days'} days
+               <table .table .table-condensed .small>
                  <tr>
-                   <th .text-center>TODO
+                   <th .text-center>Date
+                   <th .text-center>ISK Buy
+                   <th .text-center>ISK Sell
+                   <th .text-center>ISK Profit
+                   <th .text-center>ISK Broker Fee
+                   <th .text-center>ISK Transaction Tax
+                   <th .text-center>Real Profit
+                   <th .text-center>%
+                 $forall (Profit t b s p bf tt) <- profits
+                   <tr>
+                     <td>#{show t}
+                     <td .numeric>#{prettyISK b}
+                     <td .numeric>#{prettyISK s}
+                     <td .numeric>#{prettyISK p}
+                     <td .numeric>#{prettyISK bf}
+                     <td .numeric>#{prettyISK tt}
+                     <td .numeric>#{transRealProfit' p bf tt}
+                     <td .numeric>
+                       $maybe pp <- profitPercent' p bf tt s
+                         #{pp}
+                       $nothing
+                         &nbsp;
              |]
              )
 
@@ -106,17 +172,25 @@ transRealProfit t = if transactionTransIsSell t then
                     else
                       negate <$> ((+) <$> transactionFee t <*> transactionTax t)
 
+transRealProfit' :: Int64 -> Int64 -> Int64 -> String
+transRealProfit' p bf tt = prettyISK (p-bf-tt)
+
+profitPercent' :: Int64 -> Int64 -> Int64 -> Int64 -> Maybe String
+profitPercent' p bf tt s = if s == 0 then Nothing
+                                     else Just . printf "%.2f" $ 100*(fromIntegral (p - bf - tt) / fromIntegral s :: Double)
+
 profitPercent :: Int64 -> Transaction -> String
 profitPercent p t = printf "%.2f" $ (100*(fromIntegral p) / (fromIntegral (transactionQuantity t * transactionPriceCents t)) :: Double)
 
 prettyISK :: Int64 -> String
 prettyISK isk = signIsk++pretty++","++ printf "%02u" cents
   where
-    signIsk = if isk > 0 then "" else "-"
+    signIsk = if isk >= 0 then "" else "-"
     (isk',cents) = divMod (abs isk) 100
     thousands = unfoldr (\b -> if b == 0 then Nothing else Just (b `mod` 1000, b `div` 1000)) isk'
-    (ht:t) = reverse thousands
-    pretty = intercalate "." $ [show ht] ++ (printf "%03u" <$> t)
+    pretty = case reverse thousands of
+               (ht:t) -> intercalate "." $ [show ht] ++ (printf "%03u" <$> t)
+               [] -> "0"
 
 showTime :: Int64 -> String
 showTime t = printf "%2u" hours ++ ":" ++ printf "%02u" minutes ++ ":" ++ printf "%02u" seconds
