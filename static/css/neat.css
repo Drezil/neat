@@ -1,0 +1,37 @@
+.corpTransaction {
+  background-color: #3333cc;
+}
+
+.personalTransaction {
+  background-color: #ffffcc;
+}
+
+.sellTransaction {
+  background-color: #33cc33;
+}
+
+.buyTransaction {
+  background-color: #ffcccc;
+}
+
+.profit {
+  background-color: #88ff88;
+}
+
+.loss {
+  background-color: #ff8888;
+}
+
+.buyfee {
+  background-color: #ffe8e8;
+}
+
+.numeric {
+  text-align: right;
+  font-family: monospace;
+}
+
+.duration {
+  text-align: right;
+  font-family: monospace;
+}

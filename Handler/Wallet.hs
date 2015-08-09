@@ -32,13 +32,13 @@ getWalletDetailsR hrs days = loginOrDo (\(uid,user) -> do
                      <a href="@{WalletDetailsR hrs' days}" .btn .active role="button">#{cap}
                    $else
                      <a href="@{WalletDetailsR hrs' days}" .btn role="button">#{cap}
-               <table .table .table-striped .table-condensed .small>
+               <table .table .table-condensed .small>
                  <tr>
                    <th .text-center>Time
                    <th .text-center>P/C
                    <th .text-center>B/S
                    <th .text-center>Item
-                   <th .text-center>Quantity
+                   <th .text-center>##
                    <th .text-center>ISK/Item
                    <th .text-center>ISK total
                    <th .text-center>ISK profit
@@ -60,29 +60,29 @@ getWalletDetailsR hrs days = loginOrDo (\(uid,user) -> do
                      $else
                        <td .buyTransaction .text-center>B
                      <td>#{transactionTypeName t}
-                     <td .text-right>#{transactionQuantity t}
-                     <td .text-right>#{prettyISK $ transactionPriceCents t}
-                     <td .text-right>#{prettyISK $ transactionQuantity t * transactionPriceCents t}
+                     <td .numeric>#{transactionQuantity t}
+                     <td .numeric>#{prettyISK $ transactionPriceCents t}
+                     <td .numeric>#{prettyISK $ transactionQuantity t * transactionPriceCents t}
                      $maybe profit <- transRealProfit t
                        $if (&&) (transactionTransIsSell t) (profit > 0)
-                         <td .text-right .profit>
+                         <td .numeric .profit>
                            #{prettyISK $ profit}
                        $elseif (&&) (transactionTransIsSell t) (profit < 0)
-                         <td .text-right .loss>
+                         <td .numeric .loss>
                            #{prettyISK $ profit}
-                       $elseif (transactionTransIsSell t)
-                         <td .text-right .buyfee>
+                       $elseif not (transactionTransIsSell t)
+                         <td .numeric .buyfee>
                            #{prettyISK $ profit}
                        $else
-                         <td .text-right>
+                         <td ..numeric>
                            #{prettyISK $ profit}
-                       <td .text-right>
+                       <td .numeric>
                          #{profitPercent profit t}%
                      $nothing
                        <td>
                          -
                        <td>
-                     <td>
+                     <td .duration>
                        $maybe secs <- transactionSecondsToSell t
                          #{showSecsToSell secs}
                        $nothing
