@@ -47,6 +47,7 @@ Transaction
     fee Int64 Maybe -- broker-fee for putting order up
     secondsToSell Int64 Maybe --avg time this item needed to sell
     noTax Bool -- True if no taxes should be calculated
+    problematic Bool
 
 CorpStandings
     user UserId

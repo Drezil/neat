@@ -76,8 +76,10 @@ getUpdateR = loginOrDo (\(uid,user) -> do
                    runDB $ rawExecute sql [toPersistValue uid]
                    -- calculate profits
                    runDB $ do
-                     trans <- updateProfits <$> selectList [TransactionUser ==. uid, TransactionInStock !=. 0] [Asc TransactionDateTime]
+                     trans <- updateProfits <$> selectList [TransactionUser ==. uid, TransactionInStock !=. 0, TransactionProblematic ==. False] [Asc TransactionDateTime]
                      mapM_ (\(Entity eid t) -> replace eid t) trans
+                   let updateProblemSql = "update transaction t set problematic=true where t.trans_is_sell and t.in_stock < 0"
+                   runDB $ rawExecute updateProblemSql []
                redirect WalletR
              )
 
@@ -131,7 +133,7 @@ migrateTransaction :: UserId -> WT.Transaction -> Transaction
 migrateTransaction u (WT.Transaction dt tid q tn ti pc ci cn si sn tt tf jti) =
     Transaction u dt tid q (if tis tt then -q else q) tn ti
                 (fromIntegral pc) ci cn si sn (tis tt) (tfc tf) jti
-                Nothing Nothing Nothing Nothing False
+                Nothing Nothing Nothing Nothing False False
     where
       tis :: WT.TransactionType -> Bool
       tis WT.Sell = True
