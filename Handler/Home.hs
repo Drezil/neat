@@ -2,39 +2,40 @@ module Handler.Home where
 
 import Import
 
--- This is a handler function for the GET request method on the HomeR
--- resource pattern. All of your resource patterns are defined in
--- config/routes
---
--- The majority of the code you will write in Yesod lives in these handler
--- functions. You can spread them across multiple files if you are so
--- inclined, or create a single monolithic file.
+loginOrElse :: ((Key User, User) -> Handler Html) -> Handler Html -> Handler Html
+loginOrElse cont contElse = do
+                 maid <- maybeAuthId
+                 muid <- case maid of
+                         Just uid -> fmap ((,) uid) <$> runDB (get uid)
+                         Nothing -> return Nothing
+                 case muid of
+                      Nothing -> contElse
+                      Just (uid,u) -> cont (uid,u)
+
 getHomeR :: Handler Html
 getHomeR = do
-    maid <- maybeAuthId
-    muser <- case maid of
-       Just uid -> runDB $ get uid
-       Nothing -> return $ Nothing
+    loginOrElse getLoggedIn getNotLoggedIn
+
+
+getLoggedIn :: (Key User, User) -> Handler Html
+getLoggedIn (uid, user) = do
+    loginLayout user $ [whamlet|
+             <h1>Welcome back, #{userName user}.
+             <p>Current Balance: #{prettyISK $ userBalanceCents user} ISK.
+             <p>Current Stock Worth: ...
+             <p>Current total Worth: ...
+             <p>Profit in the last 7 days: ...
+             |]
+
+
+
+getNotLoggedIn :: Handler Html
+getNotLoggedIn = do
     defaultLayout $ do
         setTitle "NEAT"
         [whamlet|
-            <h1>
-                $maybe u <- muser
-                    Welcome back #{userName u}
-                $nothing
-                    Welcome to NEAT.
-            <div>
-                $maybe u <- maid
-                    <p>
-                       Data: #{show u}<br>
-                       <a href=@{AuthR LogoutR}>Logout
-                       <br>
-                       <a href=@{WalletR}>Wallet
-                       <br>
-                       <a href=@{SettingsR}>Settings
-                $nothing
-                    <p>
-                        <a href=@{AuthR LoginR}>Login
+            <h1>Welcome to NEAT.
+            <div>Here we should present features, images and other stuff to get people hooked.
         |]
 {-
     (formWidget, formEnctype) <- generateFormPost sampleForm
@@ -64,7 +65,7 @@ postHomeR = do
                     <button>Submit
                <a href=@{RegisterR}>Register Account
         |]
-    case result of 
+    case result of
       FormSuccess (u,pw) -> do
                        login <- runDB $ selectFirst [UserIdent ==. u, UserPassword ==. (Just pw)] []
                        case login of

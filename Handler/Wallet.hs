@@ -61,7 +61,7 @@ getWalletDetailsR hrs days = loginOrDo (\(uid,user) -> do
                                 order by \
                                   extract(day from (now() at time zone 'utc')-date(date_time at time zone 'utc')) asc"
              (profits :: [Profit]) <- runDB $ rawSql profitquery [toPersistValue uid, toPersistValue days]
-             defaultLayout $ [whamlet|
+             loginLayout user $ [whamlet|
              <div .panel .panel-default>
                <div .panel-heading>Transactions in the last #{hrs} hours:
                <div .btn-group .btn-group-justified role="group">

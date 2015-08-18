@@ -8,9 +8,11 @@ User
     accessToken Text
     walletTimeout UTCTime
     standingsTimeout UTCTime
+    balanceTimeout UTCTime
     skillTimeout UTCTime
     br Int -- Broker-Relations-Skill
     acc Int -- Accounting-Skill
+    balanceCents Int64
     UniqueUser ident
     deriving Typeable
 

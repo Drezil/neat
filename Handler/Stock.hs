@@ -81,7 +81,7 @@ getStockR = loginOrDo (\(uid,user) -> do
                            order by t.type_name asc"
               (items :: [Stock]) <- runDB $ rawSql sql [toPersistValue uid]
               let items' = convertStock <$> items
-              defaultLayout $ [whamlet|
+              loginLayout user $ [whamlet|
              <div .panel .panel-default>
                <div .panel-heading>Current Stock:
                <table .table .table-condensed .small .table-bordered>

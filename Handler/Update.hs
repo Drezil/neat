@@ -7,8 +7,10 @@ import qualified Eve.Api.Char.WalletTransactions as WT
 import qualified Eve.Api.Types as T
 import qualified Eve.Api.Char.Standings as ST
 import qualified Eve.Api.Char.Skills as SK
+import qualified Eve.Api.Char.AccountBalance as BA
 import Database.Persist.Sql
 import Data.Time.Clock
+import Control.Lens.Operators
 
 accountingId :: Int64
 accountingId = 16622
@@ -80,6 +82,15 @@ getUpdateR = loginOrDo (\(uid,user) -> do
                      mapM_ (\(Entity eid t) -> replace eid t) trans
                    let updateProblemSql = "update transaction t set problematic=true where t.trans_is_sell and t.in_stock < 0"
                    runDB $ rawExecute updateProblemSql []
+                   --update Balance
+                   when (userBalanceTimeout user < now) $
+                      do
+                     balance <- liftIO $ BA.getAccountBalance man apidata
+                     case balance of
+                       T.QueryResult time' balance' -> runDB $ do
+                                         update uid [UserBalanceCents =. fromIntegral (balance' ^. BA.centbalance)]
+                                         update uid [UserBalanceTimeout =. time']
+                       _ -> return ()
                redirect WalletR
              )
 

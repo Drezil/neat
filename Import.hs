@@ -7,6 +7,7 @@ import Import.NoFoundation   as Import
 import Yesod.Form.Bootstrap3 as Import
 import Text.Printf
 import Data.List (unfoldr)
+import Text.Hamlet
 
 loginOrDo :: ((Key User, User) -> Handler Html) -> Handler Html
 loginOrDo cont = do
@@ -37,3 +38,26 @@ showTime t = printf "%02u" hours ++ ":" ++ printf "%02u" minutes ++ ":" ++ print
 showDateTime :: UTCTime -> String
 showDateTime t = (show . utctDay $ t) ++ " " ++
                  (showTime . round . utctDayTime $ t)
+
+loginLayout :: ToWidget App a =>
+               User
+               -> a
+               -> HandlerT
+               App IO Html
+loginLayout user widget = do
+    master <- getYesod
+    mmsg <- getMessage
+
+    -- We break up the default layout into two components:
+    -- default-layout is the contents of the body tag, and
+    -- default-layout-wrapper is the entire page. Since the final
+    -- value passed to hamletToRepHtml cannot be a widget, this allows
+    -- you to use normal widget features in default-layout.
+
+    pc <- widgetToPageContent $ do
+        addStylesheet $ StaticR css_bootstrap_css
+        addStylesheet $ StaticR css_neat_css
+        addScript $ StaticR js_jquery_js
+        addScript $ StaticR js_bootstrap_js
+        $(widgetFile "default-layout")
+    withUrlRenderer $(hamletFile "templates/login-layout-wrapper.hamlet")

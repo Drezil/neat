@@ -91,6 +91,7 @@ library
                  , xml-lens
                  , xml-conduit
                  , eve-api
+                 , lens
 
 
 executable         neat

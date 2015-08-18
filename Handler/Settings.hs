@@ -11,7 +11,7 @@ import qualified Data.Text.Lazy as T
 import qualified Data.ByteString.Lazy.Char8 as B
 
 getSettingsR :: Handler Html
-getSettingsR = loginOrDo $ (\(uid,_) -> do
+getSettingsR = loginOrDo $ (\(uid,user) -> do
                apiKey <- runDB $ getBy $ UniqueApiUser uid
                (formWidget, formEnctype) <- generateFormPost $ renderBootstrap3 authFormLayout (authKeyForm (entityVal <$> apiKey) uid)
                man <- getHttpManager <$> ask
@@ -19,12 +19,12 @@ getSettingsR = loginOrDo $ (\(uid,_) -> do
                              Just (Entity _ key) -> liftIO $ checkApiKey key man
                              Nothing -> return False
                insertionWidget <- return Nothing :: Handler (Maybe Widget)
-               defaultLayout $(widgetFile "settings")
+               loginLayout user $(widgetFile "settings")
                )
 
 
 postSettingsR :: Handler Html
-postSettingsR = loginOrDo $ (\(uid,_) -> do
+postSettingsR = loginOrDo $ (\(uid,user) -> do
                 apiKey <- runDB $ getBy $ UniqueApiUser uid
                 ((result,formWidget),formEnctype) <- runFormPost $ renderBootstrap3 authFormLayout (authKeyForm (entityVal <$> apiKey) uid)
                 (success, msg) <- case result of
@@ -46,7 +46,7 @@ $if success
 $else
   <div class="alert alert-danger" role="alert">^{msg}
 |] :: Handler (Maybe Widget)
-                defaultLayout $(widgetFile "settings")
+                loginLayout user $(widgetFile "settings")
                 )
 
 checkApiKey :: Api -> Manager -> IO Bool
