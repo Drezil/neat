@@ -29,7 +29,7 @@ prettyISK isk = signIsk++pretty++","++ printf "%02u" cents
                [] -> "0"
 
 showTime :: Int64 -> String
-showTime t = printf "%2u" hours ++ ":" ++ printf "%02u" minutes ++ ":" ++ printf "%02u" seconds
+showTime t = printf "%02u" hours ++ ":" ++ printf "%02u" minutes ++ ":" ++ printf "%02u" seconds
   where
     (hours, minutes') = divMod t 3600
     (minutes, seconds) = divMod minutes' 60

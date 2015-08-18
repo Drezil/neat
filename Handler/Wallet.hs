@@ -112,7 +112,7 @@ getWalletDetailsR hrs days = loginOrDo (\(uid,user) -> do
                          <td .numeric .buyfee>
                            #{prettyISK $ profit}
                        $else
-                         <td ..numeric>
+                         <td .numeric>
                            #{prettyISK $ profit}
                        <td .numeric>
                          #{profitPercent profit t}%
