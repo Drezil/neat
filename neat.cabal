@@ -26,6 +26,7 @@ library
                      Handler.Settings
                      Handler.Update
                      Handler.Stock
+                     Handler.ProfitItems
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT

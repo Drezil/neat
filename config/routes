@@ -11,3 +11,4 @@
 /settings SettingsR GET POST
 /update UpdateR GET
 /stock StockR GET
+/analysis/items ProfitItemsR GET
