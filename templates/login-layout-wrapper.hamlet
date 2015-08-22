@@ -42,18 +42,18 @@ $newline never
               <li><a href="@{HomeR}">Home</a>
               <li><a href="@{WalletR}">Transactions</a>
               <li><a href="@{StockR}">Stock</a>
-              <li><a href="@{SettingsR}">Settings</a>
-              <li><a href="#">#{prettyISK $ userBalanceCents user} ISK</a>
-              <!--li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span>
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Analysis <span class="caret"></span>
                 <ul class="dropdown-menu">
-                  <li><a href="#">Action</a>
-                  <li><a href="#">Another action</a>
+                  <li><a href="@{ProfitItemsR}">Profitable Items</a>
+                  <!--li><a href="#">Another action</a>
                   <li><a href="#">Something else here</a>
                   <li role="separator" class="divider">
                   <li><a href="#">Separated link</a>
                   <li role="separator" class="divider">
                   <li><a href="@SettingsR">Settings</a-->
+              <li><a href="@{SettingsR}">Settings</a>
+              <li><a href="#">#{prettyISK $ userBalanceCents user} ISK</a>
             <ul class="nav navbar-nav navbar-right">
               <li><a href="@{UpdateR}">Update</a>
               <li><a href="@{AuthR LogoutR}">Logout</a>

@@ -12,3 +12,4 @@
 /update UpdateR GET
 /stock StockR GET
 /analysis/items ProfitItemsR GET
+/analysis/items/#Int64 ProfitItemsDetailsR GET

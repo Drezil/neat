@@ -61,3 +61,15 @@ loginLayout user widget = do
         addScript $ StaticR js_bootstrap_js
         $(widgetFile "default-layout")
     withUrlRenderer $(hamletFile "templates/login-layout-wrapper.hamlet")
+
+
+showSecsToSell :: Int64 -> String
+showSecsToSell t
+  | t > 4*7*86400 = pp (fromIntegral t / (7*86400) :: Double) ++ "w"
+  | t > 86400     = pp (fromIntegral t / 86400 :: Double) ++ "d"
+  | t > 3600      = pp (fromIntegral t / 3600 :: Double) ++ "h"
+  | t > 60        = pp (fromIntegral t / 60 :: Double) ++ "m"
+  | t == 0        = "-"
+  | otherwise     = pp (fromIntegral t :: Double) ++ "s"
+  where
+    pp = printf "%.2f"

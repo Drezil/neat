@@ -180,14 +180,3 @@ profitPercent' p bf tt s = if s == 0 then Nothing
 
 profitPercent :: Int64 -> Transaction -> String
 profitPercent p t = printf "%.2f" $ (100*(fromIntegral p) / (fromIntegral (transactionQuantity t * transactionPriceCents t)) :: Double)
-
-
-showSecsToSell :: Int64 -> String
-showSecsToSell t
-  | t > 4*7*86400 = pp (fromIntegral t / (7*86400) :: Double) ++ "w"
-  | t > 86400     = pp (fromIntegral t / 86400 :: Double) ++ "d"
-  | t > 3600      = pp (fromIntegral t / 3600 :: Double) ++ "h"
-  | t > 60        = pp (fromIntegral t / 60 :: Double) ++ "m"
-  | otherwise     = pp (fromIntegral t :: Double) ++ "s"
-  where
-    pp x = printf "%.2f" x
