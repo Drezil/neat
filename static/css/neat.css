@@ -35,3 +35,7 @@
   text-align: right;
   font-family: monospace;
 }
+
+tr.total {
+  border-top: 2px solid grey;
+}

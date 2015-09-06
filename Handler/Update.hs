@@ -8,6 +8,7 @@ import qualified Eve.Api.Types as T
 import qualified Eve.Api.Char.Standings as ST
 import qualified Eve.Api.Char.Skills as SK
 import qualified Eve.Api.Char.AccountBalance as BA
+import qualified Eve.Api.Char.MarketOrders as MO
 import Database.Persist.Sql
 import Data.Time.Clock
 import Control.Lens.Operators
@@ -91,6 +92,26 @@ getUpdateR = loginOrDo (\(uid,user) -> do
                                          update uid [UserBalanceCents =. fromIntegral (balance' ^. BA.centbalance)]
                                          update uid [UserBalanceTimeout =. time']
                        _ -> return ()
+                   --update stock-worth (cache)
+                   let stocksql = "update \"user\" set \
+                                   stock_cents = (select sum(in_stock*price_cents) from transaction where \"user\"=\"user\".id and price_cents > 0 and in_stock > 0 and not trans_is_sell)\
+                                   where id=?"
+                   runDB $ rawExecute stocksql [toPersistValue uid]
+                   --get current Orders
+                   when (userOrderTimeout user < now) $
+                     do
+                       orders <- liftIO $ MO.getMarketOrders man apidata
+                       case orders of
+                         T.QueryResult time' orders' -> runDB $ do
+                                         deleteWhere [OrderUser ==. uid]
+                                         insertMany_ (migrateOrders uid <$> orders')
+                                         update uid [UserOrderTimeout =. time']
+                                         --update escrow-worth (cache)
+                                         let ordersql = "update \"user\" set \
+                                                        escrow_cents = COALESCE((select sum(escrow_cents) from \"order\" where \"user\"=\"user\".id),0) \
+                                                        where id=?"
+                                         rawExecute ordersql [toPersistValue uid]
+                         _ -> return ()
                redirect WalletR
              )
 
@@ -152,3 +173,8 @@ migrateTransaction u (WT.Transaction dt tid q tn ti pc ci cn si sn tt tf jti) =
       tfc :: WT.TransactionFor -> Bool
       tfc WT.Corporation = True
       tfc WT.Personal = False
+
+migrateOrders :: UserId -> MO.Order -> Import.Order
+migrateOrders uid (MO.Order oid cid sid ve vr mv os tid r ak dur esc pric bid iss) =
+               Import.Order uid oid cid sid ve vr mv (fromIntegral . fromEnum $ os) tid (fromIntegral . fromEnum $ r) (fromIntegral ak) (fromIntegral dur) (fromInteger esc) (fromInteger pric) (bid == MO.Sell) iss
+

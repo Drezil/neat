@@ -9,6 +9,8 @@ import Text.Printf
 import Data.List (unfoldr)
 import Text.Hamlet
 
+{- CONVINIENCE FUNCTIONS -}
+
 loginOrDo :: ((Key User, User) -> Handler Html) -> Handler Html
 loginOrDo cont = do
                  maid <- maybeAuthId

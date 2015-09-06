@@ -30,7 +30,6 @@ data DisCols = DisCols
              , dResell :: Int64
              } deriving (Show, Eq)
 
-
 instance RawSql Stock where
   rawSqlCols _ _ = (8,[])
   rawSqlColCountReason _ = "typeId, stationId, stationName, typeName, inStock, worth, date, tax"
@@ -81,6 +80,7 @@ getStockR = loginOrDo (\(uid,user) -> do
                            order by t.type_name asc"
               (items :: [Stock]) <- runDB $ rawSql sql [toPersistValue uid]
               let items' = convertStock <$> items
+              let total = foldl' sumTotal 0 items'
               loginLayout user $ [whamlet|
              <div .panel .panel-default>
                <div .panel-heading>Current Stock:
@@ -102,6 +102,14 @@ getStockR = loginOrDo (\(uid,user) -> do
                      <td .numeric>#{prettyISK taxed}
                      <td .numeric>#{prettyISK wrth}
                      <td>#{sn}
+                 <tr .total>
+                   <th .text-center>Total
+                   <td>
+                   <td .numeric>
+                   <td .numeric>
+                   <td .numeric>
+                   <td .numeric>#{prettyISK total}
+                   <td>
              |]
             )
 
@@ -109,3 +117,7 @@ convertStock :: Stock -> DisCols
 convertStock (Stock tid sid sn tn is wrth dt tax) = DisCols tid sid sn tn (floor is) (floor wrth) avgItem dt (floor $ (fromIntegral avgItem) * tax)
   where
     avgItem = floor $ wrth / is
+
+
+sumTotal :: Int64 -> DisCols -> Int64
+sumTotal t (DisCols _ _ _ _ _ t' _ _ _) = t + t'

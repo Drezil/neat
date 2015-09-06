@@ -19,12 +19,13 @@ getHomeR = do
 
 getLoggedIn :: (Key User, User) -> Handler Html
 getLoggedIn (uid, user) = do
+    let totalworth = userBalanceCents user + userStockCents user + userEscrowCents user
     loginLayout user $ [whamlet|
              <h1>Welcome back, #{userName user}.
              <p>Current Balance: #{prettyISK $ userBalanceCents user} ISK.
-             <p>Current Stock Worth: ...
-             <p>Current total Worth: ...
-             <p>Profit in the last 7 days: ...
+             <p>Current Stock Worth: #{prettyISK $ userStockCents user} ISK.
+             <p>Current Escrow Worth: #{prettyISK $ userEscrowCents user} ISK.
+             <p>Current total Worth: #{prettyISK $ totalworth} ISK.
              |]
 
 

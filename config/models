@@ -10,9 +10,12 @@ User
     standingsTimeout UTCTime
     balanceTimeout UTCTime
     skillTimeout UTCTime
+    orderTimeout UTCTime
     br Int -- Broker-Relations-Skill
     acc Int -- Accounting-Skill
     balanceCents Int64
+    stockCents Int64
+    escrowCents Int64
     UniqueUser ident
     deriving Typeable
 
@@ -63,5 +66,22 @@ FactionStandings
     factionName Text
     factionStanding Double
 
+Order
+    user UserId
+    orderId Int64
+    charId Int64
+    stationId Int64
+    volEntered Int64
+    volRemaining Int64
+    minVolume Int64
+    orderState Int32 --no custom field as this forces string-comparisons. Use toEnum/fromEnum to get an Int
+    typeId Int64
+    range Int32 --same as orderState
+    accountKey Int32
+    duration Int32
+    escrowCents Int64
+    priceCents Int64
+    isSell Bool
+    issued UTCTime
 
  -- By default this file is used in Model.hs (which is imported by Foundation.hs)

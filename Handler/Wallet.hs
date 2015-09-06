@@ -18,6 +18,14 @@ data Profit = Profit
               , tt :: Int64
               } deriving (Show, Eq)
 
+data ProfitSum = ProfitSum
+                 { psbuy :: Int64
+                 , pssell :: Int64
+                 , psprofit :: Int64
+                 , psbf :: Int64
+                 , pstt :: Int64
+                 } deriving (Show, Eq)
+
 instance RawSql Profit where
   rawSqlCols _ _ = (6,[])
   rawSqlColCountReason _ = "date, buy, sell, profit, bf, tt"
@@ -61,6 +69,7 @@ getWalletDetailsR hrs days = loginOrDo (\(uid,user) -> do
                                 order by \
                                   extract(day from (now() at time zone 'utc')-date(date_time at time zone 'utc')) asc"
              (profits :: [Profit]) <- runDB $ rawSql profitquery [toPersistValue uid, toPersistValue days]
+             let profitssum = foldl' addProfit (ProfitSum 0 0 0 0 0) profits
              loginLayout user $ [whamlet|
              <div .panel .panel-default>
                <div .panel-heading>Transactions in the last #{hrs} hours:
@@ -162,6 +171,20 @@ getWalletDetailsR hrs days = loginOrDo (\(uid,user) -> do
                          #{pp}
                        $nothing
                          &nbsp;
+                 $with (ProfitSum b s p bf tt) <- profitssum
+                   <tr .total>
+                     <th .text-center>Total
+                     <td .numeric>#{prettyISK b}
+                     <td .numeric>#{prettyISK s}
+                     <td .numeric>#{prettyISK p}
+                     <td .numeric>#{prettyISK bf}
+                     <td .numeric>#{prettyISK tt}
+                     <td .numeric>#{transRealProfit' p bf tt}
+                     <td .numeric>
+                       $maybe pp <- profitPercent' p bf tt s
+                         #{pp}
+                       $nothing
+                         &nbsp;
              |]
              )
 
@@ -180,3 +203,6 @@ profitPercent' p bf tt s = if s == 0 then Nothing
 
 profitPercent :: Int64 -> Transaction -> String
 profitPercent p t = printf "%.2f" $ (100*(fromIntegral p) / (fromIntegral (transactionQuantity t * transactionPriceCents t)) :: Double)
+
+addProfit :: ProfitSum -> Profit -> ProfitSum
+addProfit (ProfitSum b' s' p' bf' tt') (Profit _ b s p bf tt) = ProfitSum (b+b') (s+s') (p+p') (bf+bf') (tt+tt')
