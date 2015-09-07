@@ -13,3 +13,4 @@
 /stock StockR GET
 /analysis/items ProfitItemsR GET
 /analysis/items/#Int64 ProfitItemsDetailsR GET
+/orders OrdersR GET

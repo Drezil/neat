@@ -108,7 +108,7 @@ getUpdateR = loginOrDo (\(uid,user) -> do
                                          update uid [UserOrderTimeout =. time']
                                          --update escrow-worth (cache)
                                          let ordersql = "update \"user\" set \
-                                                        escrow_cents = COALESCE((select sum(escrow_cents) from \"order\" where \"user\"=\"user\".id),0) \
+                                                        escrow_cents = COALESCE((select sum(escrow_cents) from \"order\" where \"user\"=\"user\".id and \"order\".order_state=0),0) \
                                                         where id=?"
                                          rawExecute ordersql [toPersistValue uid]
                          _ -> return ()

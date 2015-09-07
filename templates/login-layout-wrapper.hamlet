@@ -46,6 +46,7 @@ $newline never
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Analysis <span class="caret"></span>
                 <ul class="dropdown-menu">
                   <li><a href="@{ProfitItemsR}">Profitable Items</a>
+                  <li><a href="@{OrdersR}">Orders</a>
                   <!--li><a href="#">Another action</a>
                   <li><a href="#">Something else here</a>
                   <li role="separator" class="divider">
