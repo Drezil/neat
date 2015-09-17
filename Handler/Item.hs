@@ -6,20 +6,23 @@ itemsPerPage :: Int
 itemsPerPage = 100
 
 getItemR :: Int64 -> Handler Html
-getItemR transactionTypeId = getItemPagedR transactionTypeId 0
+getItemR transactionTypeId = getItemPagedR transactionTypeId 1
 
 getItemPagedR :: Int64 -> Int -> Handler Html
-getItemPagedR tid page =
-   loginOrDo (\(uid,user) -> do
-     items <- runDB $ selectList [TransactionTypeId ==. tid] [Desc TransactionDateTime, LimitTo itemsPerPage, OffsetBy (itemsPerPage*page)]
+getItemPagedR tid page
+   | page < 1 = getItemPagedR tid 1
+   | otherwise = loginOrDo (\(uid,user) -> do
+     items <- runDB $ selectList [TransactionTypeId ==. tid] [Desc TransactionDateTime, LimitTo itemsPerPage, OffsetBy (itemsPerPage*(page-1))]
      total <- runDB $ count [TransactionTypeId ==. tid]
      let offset = itemsPerPage * page
+     let maxPages = total `div` itemsPerPage
+     let paginatePages = [1..maxPages+1]
      loginLayout user $ [whamlet|
               <div .panel .panel-default>
                $if page > 0
-                 <div .panel-heading>#{itemsPerPage} Transactions (starting at #{offset})
+                 <div .panel-heading>#{itemsPerPage} Transactions (starting at #{offset}) of #{total}
                $else
-                 <div .panel-heading>#{itemsPerPage} Transactions
+                 <div .panel-heading>#{itemsPerPage} Transactions of #{total}
                <table .table .table-condensed .small>
                  <tr>
                    <th .text-center>Time
@@ -79,6 +82,12 @@ getItemPagedR tid page =
                      <td>#{transactionStationName t}
                      <td>
                      <td>
+              <ul class="pagination">
+                $forall p <- paginatePages
+                  $if p == page
+                    <li .active><a href="@{ItemPagedR tid p}">#{p}</a>
+                  $else
+                    <li><a href="@{ItemPagedR tid p}">#{p}</a>
      |]
    )
 

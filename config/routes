@@ -15,3 +15,4 @@
 /analysis/items/#Int64 ProfitItemsDetailsR GET
 /orders OrdersR GET
 /history/#Int64 ItemR GET
+/history/#Int64/#Int ItemPagedR GET
