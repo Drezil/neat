@@ -96,7 +96,7 @@ getStockR = loginOrDo (\(uid,user) -> do
                  $forall DisCols tid sid sn tn is wrth avg' dt taxed <- items'
                    <tr>
                      <td>#{showDateTime dt}
-                     <td>#{tn}
+                     <td><a href="@{ItemR tid}">#{tn}</a>
                      <td .numeric>#{is}
                      <td .numeric>#{prettyISK avg'}
                      <td .numeric>#{prettyISK taxed}

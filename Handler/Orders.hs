@@ -42,7 +42,7 @@ getOrdersR = loginOrDo (\(uid,user) -> do
                    $forall (Entity _ o, Single name, Single stationname, Single regionid) <- sellorders
                      <tr .order data="#{orderTypeId o};#{regionid};#{orderPriceCents o}">
                        <td>#{showDateTime $ orderIssued $ o}
-                       <td>#{name}
+                       <td><a href="@{ItemR (orderTypeId o)}">#{name}</a>
                        <td .numeric .price>#{prettyISK $ orderPriceCents o}
                        <td .numeric>#{orderVolRemaining o}/#{orderVolEntered o} (#{orderMinVolume o})
                        <td .numeric>#{prettyISK $ orderVolRemaining o * orderPriceCents o}
@@ -76,7 +76,7 @@ getOrdersR = loginOrDo (\(uid,user) -> do
                    $forall (Entity _ o, Single name, Single stationname, Single regionid) <- buyorders
                      <tr .order data="#{orderTypeId o};#{regionid};#{orderPriceCents o}">
                        <td>#{showDateTime $ orderIssued $ o}
-                       <td>#{name}
+                       <td><a href="@{ItemR (orderTypeId o)}">#{name}</a>
                        <td .numeric .price>#{prettyISK $ orderPriceCents o}
                        <td .numeric>#{orderVolRemaining o}/#{orderVolEntered o} (#{orderMinVolume o})
                        <td .numeric>#{prettyISK $ orderPriceCents o * orderVolRemaining o}

@@ -77,7 +77,7 @@ getProfitItemsDetailsR days = loginOrDo (\(uid,user) -> do
                    <th .text-center>%/Day
                  $forall (Profit tn tid quant pc f t a sc) <- items
                    <tr>
-                     <td>#{tn}
+                     <td><a href="@{ItemR tid}">#{tn}</a>
                      <td .numeric>#{prettyISK pc}
                      <td .numeric>#{prettyISK f}
                      <td .numeric>#{prettyISK t}
@@ -85,7 +85,7 @@ getProfitItemsDetailsR days = loginOrDo (\(uid,user) -> do
                      <td .numeric>#{showSecsToSell a}
                      <td .numeric>#{quant}
                      <td .numeric>#{prettyISK $ profitPerDay pc f t a}
-                     <td .numeric>#{profitPercent pc f t sc}
+                     <td .numeric>#{profitPercent' pc f t sc}
                      <td .numeric>#{profitPercentDay pc f t sc a}
                   |]
                   )
@@ -98,9 +98,9 @@ profitPerDay :: Int64 -> Int64 -> Int64 -> Int64 -> Int64
 profitPerDay _ _ _ 0 = 0
 profitPerDay p f t a = ((p-f-t) * 86400) `div` a
 
-profitPercent :: Int64 -> Int64 -> Int64 -> Int64 -> String
-profitPercent _ _ _ 0 = printf "%.2f" $ (0 :: Double)
-profitPercent p f t s = printf "%.2f" $ (100*(fromIntegral (p-f-t)) / (fromIntegral s) :: Double)
+profitPercent' :: Int64 -> Int64 -> Int64 -> Int64 -> String
+profitPercent' _ _ _ 0 = printf "%.2f" $ (0 :: Double)
+profitPercent' p f t s = printf "%.2f" $ (100*(fromIntegral (p-f-t)) / (fromIntegral s) :: Double)
 
 profitPercentDay :: Int64 -> Int64 -> Int64 -> Int64 -> Int64 -> String
 profitPercentDay _ _ _ 0 _ = printf "%.2f" $ (0 :: Double)

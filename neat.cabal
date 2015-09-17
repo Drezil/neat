@@ -28,6 +28,7 @@ library
                      Handler.Stock
                      Handler.ProfitItems
                      Handler.Orders
+                     Handler.Item
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT

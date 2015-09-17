@@ -14,3 +14,4 @@
 /analysis/items ProfitItemsR GET
 /analysis/items/#Int64 ProfitItemsDetailsR GET
 /orders OrdersR GET
+/history/#Int64 ItemR GET

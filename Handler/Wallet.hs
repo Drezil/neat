@@ -106,7 +106,7 @@ getWalletDetailsR hrs days = loginOrDo (\(uid,user) -> do
                        <td .sellTransaction .text-center>S
                      $else
                        <td .buyTransaction .text-center>B
-                     <td>#{transactionTypeName t}
+                     <td><a href="@{ItemR (transactionTypeId t)}">#{transactionTypeName t}</a>
                      <td .numeric>#{transactionQuantity t}
                      <td .numeric>#{prettyISK $ transactionPriceCents t}
                      <td .numeric>#{prettyISK $ transactionQuantity t * transactionPriceCents t}
@@ -188,21 +188,12 @@ getWalletDetailsR hrs days = loginOrDo (\(uid,user) -> do
              |]
              )
 
-transRealProfit :: Transaction -> Maybe Int64
-transRealProfit t = if transactionTransIsSell t then
-                      (\a b c -> a - b - c) <$> transactionProfit t <*> transactionFee t <*> transactionTax t
-                    else
-                      negate <$> ((+) <$> transactionFee t <*> transactionTax t)
-
 transRealProfit' :: Int64 -> Int64 -> Int64 -> String
 transRealProfit' p bf tt = prettyISK (p-bf-tt)
 
 profitPercent' :: Int64 -> Int64 -> Int64 -> Int64 -> Maybe String
 profitPercent' p bf tt s = if s == 0 then Nothing
                                      else Just . printf "%.2f" $ 100*(fromIntegral (p - bf - tt) / fromIntegral s :: Double)
-
-profitPercent :: Int64 -> Transaction -> String
-profitPercent p t = printf "%.2f" $ (100*(fromIntegral p) / (fromIntegral (transactionQuantity t * transactionPriceCents t)) :: Double)
 
 addProfit :: ProfitSum -> Profit -> ProfitSum
 addProfit (ProfitSum b' s' p' bf' tt') (Profit _ b s p bf tt) = ProfitSum (b+b') (s+s') (p+p') (bf+bf') (tt+tt')

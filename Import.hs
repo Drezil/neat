@@ -76,3 +76,12 @@ showSecsToSell t
   | otherwise     = pp (fromIntegral t :: Double) ++ "s"
   where
     pp = printf "%.2f"
+
+transRealProfit :: Transaction -> Maybe Int64
+transRealProfit t = if transactionTransIsSell t then
+                      (\a b c -> a - b - c) <$> transactionProfit t <*> transactionFee t <*> transactionTax t
+                    else
+                      negate <$> ((+) <$> transactionFee t <*> transactionTax t)
+
+profitPercent :: Int64 -> Transaction -> String
+profitPercent p t = printf "%.2f" $ (100*(fromIntegral p) / (fromIntegral (transactionQuantity t * transactionPriceCents t)) :: Double)
