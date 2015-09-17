@@ -61,6 +61,7 @@ loginLayout user widget = do
         addStylesheet $ StaticR css_neat_css
         addScript $ StaticR js_jquery_js
         addScript $ StaticR js_bootstrap_js
+        addScript $ StaticR js_neat_js
         $(widgetFile "default-layout")
     withUrlRenderer $(hamletFile "templates/login-layout-wrapper.hamlet")
 

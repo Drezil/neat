@@ -14,6 +14,14 @@
   background-color: #ffcccc;
 }
 
+.outbid {
+  background-color: #ffcccc;
+}
+
+.not_outbid {
+  background-color: #33cc33;
+}
+
 .profit {
   background-color: #88ff88;
 }
