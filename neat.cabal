@@ -29,6 +29,7 @@ library
                      Handler.ProfitItems
                      Handler.Orders
                      Handler.Item
+                     Handler.Problematic
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT

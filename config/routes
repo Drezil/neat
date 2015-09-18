@@ -16,3 +16,5 @@
 /orders OrdersR GET
 /history/#Int64 ItemR GET
 /history/#Int64/#Int ItemPagedR GET
+/transactions/problematic ProblematicR GET
+/transactions/problematic/#Int ProblematicDaysR GET
