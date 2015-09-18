@@ -30,6 +30,7 @@ library
                      Handler.Orders
                      Handler.Item
                      Handler.Problematic
+                     Handler.LostOrders
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
