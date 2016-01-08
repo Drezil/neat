@@ -6,24 +6,14 @@ At the moment there is nothing much to see here but a bit of playing around with
 
 ## Getting stuff to run
 
-1. Install Haskell like [http://www.stackage.org/Install]()
-2. Go into a folder and do
-    
-    ```
-    wget http://www.stackage.org/lts/cabal.config
-    sudo apt-get install -y build-essential zlib1g-dev
-    cabal update                       # download package list
-    cabal install alex happy yesod-bin # install build tools
-    ```
-
-3. clone this repository into the same folder
-4. install postgres (i use v. 9.3)
+1. Install Stack like [http://docs.haskellstack.org/en/stable/README.html]()
+2. install postgres (i use v. 9.3)
 
     ```
     sudo apt-get install -y postgresql-9.3 libpg-dev
     ```
 
-5. create user and database inside a psql-shell as user postgres:
+3. create user and database inside a psql-shell as user postgres:
 
     ```
     CREATE ROLE neat;
@@ -31,8 +21,16 @@ At the moment there is nothing much to see here but a bit of playing around with
     CREATE DATABASE neat;
     GRANT ALL ON DATABASE neat TO neat;
     ```
+4. clone this repository, invoke the install.sh to also download the dependencies and install yesod-bin and build the project
 
-6. install dependencies and setup sandbox (invoke install.sh)
+    ```
+    git clone https://github.com/Drezil/neat
+    cd neat
+    ./install.sh
+    stack setup
+    stack install yesod-bin
+    stack build
+    ```
 
 7. Get the current postgres-data-dump from `https://www.fuzzwork.co.uk/dump/postgres-latest.dmp.bz2` and restore it into the `neat` database:
 
@@ -44,4 +42,4 @@ At the moment there is nothing much to see here but a bit of playing around with
    pg_restore -d neat postgres-latest.dmp
    ```
 
-8. run yesod with ```yesod devel```
+8. run yesod in development-mode using stack with ```stack exec yesod devel```
