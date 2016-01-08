@@ -2,6 +2,16 @@ name:              neat
 version:           0.0.0
 cabal-version:     >= 1.8
 build-type:        Simple
+category:          WebApp
+maintainer:        Stefan Dresselhaus
+synopsis:          Accounting-Application for the game EVE Online
+license:           GPL-3
+license-file:      LICENSE
+description:       Accounting-Application for the game EVE Online
+
+source-repository head
+  type: git
+  location: https://github.com/Drezil/neat
 
 Flag dev
     Description:   Turn on development settings, like auto-reload templates.
@@ -79,12 +89,12 @@ library
                  , yaml                          >= 0.8        && < 0.9
                  , http-conduit                  >= 2.1        && < 2.2
                  , directory                     >= 1.1        && < 1.3
-                 , warp                          >= 3.0        && < 3.1
+                 , warp                          >= 3.0        && < 3.2
                  , data-default
-                 , aeson                         >= 0.6        && < 0.9
+                 , aeson                         >= 0.6
                  , conduit                       >= 1.0        && < 2.0
                  , monad-logger                  >= 0.3        && < 0.4
-                 , fast-logger                   >= 2.2        && < 2.4
+                 , fast-logger                   >= 2.2        && < 2.5
                  , wai-logger                    >= 2.2        && < 2.3
                  , file-embed
                  , safe
@@ -133,7 +143,7 @@ test-suite test
 
     build-depends: base
                  , neat
-                 , yesod-test >= 1.4.3 && < 1.5
+                 , yesod-test >= 1.4.3
                  , yesod-core
                  , yesod
                  , persistent

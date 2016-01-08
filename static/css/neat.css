@@ -47,3 +47,8 @@
 tr.total {
   border-top: 2px solid grey;
 }
+
+tr:hover {
+  background-color: #dddddd;
+}
+
