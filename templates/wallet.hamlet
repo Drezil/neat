@@ -1,0 +1,129 @@
+<div .panel .panel-default>
+  <div .panel-heading>Transactions in the last #{hrs} hours:
+  <div .btn-group .btn-group-justified role="group">
+    $forall (hrs',cap) <- buttonIntervals
+      $if hrs == hrs'
+        <a href="@{WalletDetailsR hrs' days}" .btn .active role="button">#{cap}
+      $else
+        <a href="@{WalletDetailsR hrs' days}" .btn role="button">#{cap}
+  <div .btn-group role="group" id="walletOptions">
+    <a id="walletTableSort" .btn .active role="button">
+      Sort Mode
+    <a id="walletTableColumnSelect" .btn role="button">
+      Hide/Show Mode
+  <table .table .table-condensed .small id="tableWallet">
+    <thead>
+      <tr>
+        <th .text-center>Time
+        <th .text-center>P/C
+        <th .text-center>B/S
+        <th .text-center>Item
+        <th .text-center>##
+        <th .text-center>ISK/Item
+        <th .text-center>ISK total
+        <th .text-center>ISK profit
+        <th .text-center>%
+        <th .text-center>Time
+        <th .text-center>Client
+        <th .text-center>Station
+        <th .text-center>?
+        <th .text-center>
+    <tbody>
+      $forall Entity _ t <- trans
+        <tr>
+          <td>#{showDateTime $ transactionDateTime $ t}
+          $if transactionTransForCorp t
+            <td .corpTransaction .text-center>C
+          $else
+            <td .personalTransaction .text-center>P
+          $if transactionTransIsSell t
+            <td .sellTransaction .text-center>S
+          $else
+            <td .buyTransaction .text-center>B
+          <td><a href="@{ItemR (transactionTypeId t)}">#{transactionTypeName t}</a>
+          <td .numeric>#{transactionQuantity t}
+          <td .numeric>#{prettyISK $ transactionPriceCents t}
+          <td .numeric>#{prettyISK $ transactionQuantity t * transactionPriceCents t}
+          $maybe profit <- transRealProfit t
+            $if (&&) (transactionTransIsSell t) (profit > 0)
+              <td .numeric .profit>
+                #{prettyISK $ profit}
+            $elseif (&&) (transactionTransIsSell t) (profit < 0)
+              <td .numeric .loss>
+                #{prettyISK $ profit}
+            $elseif not (transactionTransIsSell t)
+              <td .numeric .buyfee>
+                #{prettyISK $ profit}
+            $else
+              <td .numeric>
+                #{prettyISK $ profit}
+            <td .numeric>
+              #{profitPercent profit t}%
+          $nothing
+            <td>
+              -
+            <td>
+          <td .duration>
+            $maybe secs <- transactionSecondsToSell t
+              #{showSecsToSell secs}
+            $nothing
+              &nbsp;
+          <td>#{transactionClientName t}
+          <td>#{transactionStationName t}
+          <td>
+          <td>
+
+<div .panel .panel-default>
+  <div .panel-heading>Statistices for the last #{days} days:
+  <div .btn-group .btn-group-justified role="group">
+    $forall days' <- profitIntervals
+      $if days == days'
+        <a href="@{WalletDetailsR hrs days'}" .btn .active role="button">#{days'} days
+      $else
+        <a href="@{WalletDetailsR hrs days'}" .btn role="button">#{days'} days
+  <div .btn-group role="group" id="walletDaysOptions">
+    <a id="walletDaysTableSort" .btn .active role="button">
+      Sort Mode
+    <a id="walletDaysTableColumnSelect" .btn role="button">
+      Hide/Show Mode
+  <table .table .table-condensed .small id="tableWalletDays">
+    <thead>
+      <tr>
+        <th .text-center>Date
+        <th .text-center>ISK Buy
+        <th .text-center>ISK Sell
+        <th .text-center>ISK Profit
+        <th .text-center>ISK Broker Fee
+        <th .text-center>ISK Transaction Tax
+        <th .text-center>Real Profit
+        <th .text-center>%
+    <tbody>
+      $forall (Profit t b s p bf tt) <- profits
+        <tr>
+          <td>#{show t}
+          <td .numeric>#{prettyISK b}
+          <td .numeric>#{prettyISK s}
+          <td .numeric>#{prettyISK p}
+          <td .numeric>#{prettyISK bf}
+          <td .numeric>#{prettyISK tt}
+          <td .numeric>#{transRealProfit' p bf tt}
+          <td .numeric>
+            $maybe pp <- profitPercent' p bf tt s
+              #{pp}
+            $nothing
+              &nbsp;
+    <tfoot>
+      $with (ProfitSum b s p bf tt) <- profitssum
+        <tr .total>
+          <th .text-center>Total
+          <td .numeric>#{prettyISK b}
+          <td .numeric>#{prettyISK s}
+          <td .numeric>#{prettyISK p}
+          <td .numeric>#{prettyISK bf}
+          <td .numeric>#{prettyISK tt}
+          <td .numeric>#{transRealProfit' p bf tt}
+          <td .numeric>
+            $maybe pp <- profitPercent' p bf tt s
+              #{pp}
+            $nothing
+              &nbsp;

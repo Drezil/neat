@@ -1,0 +1,36 @@
+<div .panel .panel-default>
+  <div .panel-heading>Current Stock:
+  <div .btn-group role="group" id="stockOptions">
+    <a id="stockTableSort" .btn .active role="button">
+      Sort Mode
+    <a id="stockTableColumnSelect" .btn role="button">
+      Hide/Show Mode
+  <table .table .table-condensed .small .table-bordered id="tableStock">
+    <thead>
+      <tr>
+        <th .text-center>Bought
+        <th .text-center>Item name
+        <th .text-center>Quantity
+        <th .text-center>Buy price
+        <th .text-center>Required sell
+        <th .text-center>Total
+        <th .text-center>Station name
+    <tbody>
+      $forall DisCols tid sid sn tn is wrth avg' dt taxed <- items'
+        <tr>
+          <td>#{showDateTime dt}
+          <td><a href="@{ItemR tid}">#{tn}</a>
+          <td .numeric>#{is}
+          <td .numeric>#{prettyISK avg'}
+          <td .numeric>#{prettyISK taxed}
+          <td .numeric>#{prettyISK wrth}
+          <td>#{sn}
+    <tfoot>
+      <tr .total>
+        <th .text-center>Total
+        <td>
+        <td .numeric>
+        <td .numeric>
+        <td .numeric>
+        <td .numeric>#{prettyISK total}
+        <td>

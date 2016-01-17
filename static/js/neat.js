@@ -67,3 +67,48 @@ function checkOrders() {
 
 }
 
+function sortTableBy(tblSel,col,des,desc) {
+  var rows = $(tblSel + ' > tbody > tr');
+  rows.detach();
+  rows = rows.sort(function(a,b) {
+    fst = $($(a).children()[col]);
+    snd = $($(b).children()[col]);
+    res = 0;
+    if (fst.hasClass('numeric')) {
+      res =  parseFloat(fst.text().replace(/\./g,"").replace(",",".")) 
+           - parseFloat(snd.text().replace(/\./g,"").replace(",","."));
+    } else {
+      if (fst.text() == snd.text())
+        res = $($(a).children()[des]).text() < $($(b).children()[des]).text() ? -1 : 1;
+      else
+        res = fst.text() < snd.text() ? -1 : 1;
+    }
+    if (desc)
+      return res;
+    else
+      return -1*res;
+  });
+  rows.appendTo($(tblSel + ' > tbody'));
+}
+
+function hideTableCol(tblSel, col, resetGroup) {
+  var desc = $($(tblSel + ' > thead > tr').children()[col]).text();
+  var rows = $(tblSel + ' > * > tr');
+  rows.each(function(id,elem) {
+    $($(elem).children()[col]).fadeOut();
+  });
+  var restore = $('<a class="btn" role="button">Show '+desc+'</a>');
+  restore.on('click', function() {
+    showTableCol(tblSel,col,restore);
+  });
+  $(resetGroup).append(restore);
+}
+
+function showTableCol(tblSel, col, resetButton) {
+  var rows = $(tblSel + ' > * > tr');
+  rows.each(function(id,elem) {
+    $($(elem).children()[col]).fadeIn();
+  });
+  $(resetButton).remove();
+}
+

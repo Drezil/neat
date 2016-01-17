@@ -1,0 +1,79 @@
+var walletSorting = true;
+
+function options(opt) {
+    switch(opt) {
+      case "walletSort":
+        $('#tableWallet tr th').each(function(id,elem) {
+          $(elem).off('click');
+          $(elem).on('click', function() {
+            sortTableBy("#tableWallet",id,3,walletSorting);
+            walletSorting = !walletSorting;
+          });
+        });
+        $('#walletOptions > a').each(function(i,e) {$(e).removeClass("active");});
+        $('#walletTableSort').addClass("active");
+        break;
+      case "walletHide":
+        $('#tableWallet tr th').each(function(id,elem) {
+          $(elem).off('click');
+          $(elem).on('click', function() {
+            hideTableCol("#tableWallet",id,"#walletOptions");
+          });
+        });
+        $('#walletOptions > a').each(function(i,e) {$(e).removeClass("active");});
+        console.log($('#walletOptions a'));
+        $('#walletTableColumnSelect').addClass("active");
+        break;
+    }
+}
+
+$('#walletTableSort').on('click', function() {
+  options("walletSort");
+});
+
+$('#walletTableColumnSelect').on('click', function() {
+  options("walletHide");
+});
+
+
+options("walletSort");
+
+var walletDaysSorting = true;
+
+function optionsDays(opt) {
+    switch(opt) {
+      case "walletDaysSort":
+        $('#tableWalletDays tr th').each(function(id,elem) {
+          $(elem).off('click');
+          $(elem).on('click', function() {
+            sortTableBy("#tableWalletDays",id,3,walletDaysSorting);
+            walletDaysSorting = !walletDaysSorting;
+          });
+        });
+        $('#walletDaysOptions > a').each(function(i,e) {$(e).removeClass("active");});
+        $('#walletDaysTableSort').addClass("active");
+        break;
+      case "walletDaysHide":
+        $('#tableWalletDays tr th').each(function(id,elem) {
+          $(elem).off('click');
+          $(elem).on('click', function() {
+            hideTableCol("#tableWalletDays",id,"#walletDaysOptions");
+          });
+        });
+        $('#walletDaysOptions > a').each(function(i,e) {$(e).removeClass("active");});
+        console.log($('#walletDaysOptions a'));
+        $('#walletDaysTableColumnSelect').addClass("active");
+        break;
+    }
+}
+
+$('#walletDaysTableSort').on('click', function() {
+  optionsDays("walletDaysSort");
+});
+
+$('#walletDaysTableColumnSelect').on('click', function() {
+  optionsDays("walletDaysHide");
+});
+
+
+optionsDays("walletDaysSort");

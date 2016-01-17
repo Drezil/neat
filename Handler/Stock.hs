@@ -5,6 +5,7 @@ module Handler.Stock where
 import Import
 --import Database.Esqueleto as E
 import Database.Persist.Sql (rawSql,RawSql(..))
+import Yesod.Default.Util (widgetFileReload)
 
 
 data Stock = Stock
@@ -40,23 +41,6 @@ instance RawSql Stock where
 
 getStockR :: Handler Html
 getStockR = loginOrDo (\(uid,user) -> do
-              --items <- runDB $ selectList [TransactionUser ==. uid, TransactionInStock >. 0] [Asc TransactionTypeName]
-              --persist cannot do groupBy
-              {-(items :: [(E.Value Text,
-                          E.Value Text,
-                          E.Value (Maybe Rational),
-                          E.Value (Maybe Rational))]) <-
-                         runDB $ select $ from $ \trans -> do
-                                 where_ (trans ^. TransactionInStock E.>. (val 0))
-                                 E.groupBy $ trans ^. TransactionTypeId
-                                 E.groupBy $ trans ^. TransactionTypeName
-                                 E.groupBy $ trans ^. TransactionStationName
-                                 orderBy [asc (trans ^. TransactionTypeName)]
-                                 return (trans ^. TransactionTypeName
-                                        ,trans ^. TransactionStationName
-                                        ,sum_ $ trans ^. TransactionInStock
-                                        ,avg_ $ (trans ^. TransactionPriceCents) *. (trans ^. TransactionInStock))-}
-              --esqueleto does not work because we reference tables outside of the model, so we come back to raw SQL:
               let sql = "select t.type_id, t.station_id, t.station_name, t.type_name, \
                                 sum(t.in_stock) as in_stock, \
                                 sum(t.in_stock*t.price_cents) as worth, \
@@ -81,36 +65,7 @@ getStockR = loginOrDo (\(uid,user) -> do
               (items :: [Stock]) <- runDB $ rawSql sql [toPersistValue uid]
               let items' = convertStock <$> items
               let total = foldl' sumTotal 0 items'
-              loginLayout user $ [whamlet|
-             <div .panel .panel-default>
-               <div .panel-heading>Current Stock:
-               <table .table .table-condensed .small .table-bordered>
-                 <tr>
-                   <th .text-center>Bought
-                   <th .text-center>Item name
-                   <th .text-center>Quantity
-                   <th .text-center>Buy price
-                   <th .text-center>Required sell
-                   <th .text-center>Total
-                   <th .text-center>Station name
-                 $forall DisCols tid sid sn tn is wrth avg' dt taxed <- items'
-                   <tr>
-                     <td>#{showDateTime dt}
-                     <td><a href="@{ItemR tid}">#{tn}</a>
-                     <td .numeric>#{is}
-                     <td .numeric>#{prettyISK avg'}
-                     <td .numeric>#{prettyISK taxed}
-                     <td .numeric>#{prettyISK wrth}
-                     <td>#{sn}
-                 <tr .total>
-                   <th .text-center>Total
-                   <td>
-                   <td .numeric>
-                   <td .numeric>
-                   <td .numeric>
-                   <td .numeric>#{prettyISK total}
-                   <td>
-             |]
+              loginLayout user $ $(widgetFileReload def "curStock")
             )
 
 convertStock :: Stock -> DisCols

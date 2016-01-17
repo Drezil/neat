@@ -1,0 +1,39 @@
+var stockSorting = true;
+
+function options(opt) {
+    switch(opt) {
+      case "stockSort":
+        $('#tableStock tr th').each(function(id,elem) {
+          $(elem).off('click');
+          $(elem).on('click', function() {
+            sortTableBy("#tableStock",id,1,stockSorting);
+            stockSorting = !stockSorting;
+          });
+        });
+        $('#stockOptions > a').each(function(i,e) {$(e).removeClass("active");});
+        $('#stockTableSort').addClass("active");
+        break;
+      case "stockHide":
+        $('#tableStock tr th').each(function(id,elem) {
+          $(elem).off('click');
+          $(elem).on('click', function() {
+            hideTableCol("#tableStock",id,"#stockOptions");
+          });
+        });
+        $('#stockOptions > a').each(function(i,e) {$(e).removeClass("active");});
+        console.log($('#stockOptions a'));
+        $('#stockTableColumnSelect').addClass("active");
+        break;
+    }
+}
+
+$('#stockTableSort').on('click', function() {
+  options("stockSort");
+});
+
+$('#stockTableColumnSelect').on('click', function() {
+  options("stockHide");
+});
+
+
+options("stockSort");

@@ -1,0 +1,39 @@
+var itemSorting = true;
+
+function options(opt) {
+    switch(opt) {
+      case "itemSort":
+        $('#tableItem tr th').each(function(id,elem) {
+          $(elem).off('click');
+          $(elem).on('click', function() {
+            sortTableBy("#tableItem",id,0,itemSorting);
+            itemSorting = !itemSorting;
+          });
+        });
+        $('#itemOptions > a').each(function(i,e) {$(e).removeClass("active");});
+        $('#itemTableSort').addClass("active");
+        break;
+      case "itemHide":
+        $('#tableItem tr th').each(function(id,elem) {
+          $(elem).off('click');
+          $(elem).on('click', function() {
+            hideTableCol("#tableItem",id,"#itemOptions");
+          });
+        });
+        $('#itemOptions > a').each(function(i,e) {$(e).removeClass("active");});
+        console.log($('#itemOptions a'));
+        $('#itemTableColumnSelect').addClass("active");
+        break;
+    }
+}
+
+$('#itemTableSort').on('click', function() {
+  options("itemSort");
+});
+
+$('#itemTableColumnSelect').on('click', function() {
+  options("itemHide");
+});
+
+
+options("itemSort");
