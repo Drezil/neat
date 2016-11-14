@@ -94,7 +94,7 @@ getUpdateR = loginOrDo (\(uid,user) -> do
                        _ -> return ()
                    --update stock-worth (cache)
                    let stocksql = "update \"user\" set \
-                                   stock_cents = (select sum(in_stock*price_cents) from transaction where \"user\"=\"user\".id and price_cents > 0 and in_stock > 0 and not trans_is_sell)\
+                                   stock_cents = COALESCE((select sum(in_stock*price_cents) from transaction where \"user\"=\"user\".id and price_cents > 0 and in_stock > 0 and not trans_is_sell),0)\
                                    where id=?"
                    runDB $ rawExecute stocksql [toPersistValue uid]
                    --get current Orders
