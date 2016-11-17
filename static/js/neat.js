@@ -17,7 +17,7 @@ var n = this,
 function checkOrders() {
   $('table.sellOrders tr.order').each(function(ix,el) {
     var d = $(el).attr('data').split(';');
-    $.getJSON("https://public-crest.eveonline.com/market/"+d[1]+"/orders/sell/?type=https://public-crest.eveonline.com/types/"+d[0]+"/",function(ret, status, xhr) {
+    $.getJSON("https://esi.tech.ccp.is/latest/markets/"+d[1]+"/orders/?type_id="+d[0]+"&order_type=sell&datasource=tranquility",function(ret, status, xhr) {
          var outbid = false;
          var outbidprice = parseFloat(d[2])/100;
          $(ret.items).each(function(index,order) {
@@ -42,7 +42,7 @@ function checkOrders() {
 
   $('table.buyOrders tr.order').each(function(ix,el) {
     var d = $(el).attr('data').split(';');
-    $.getJSON("https://public-crest.eveonline.com/market/"+d[1]+"/orders/buy/?type=https://public-crest.eveonline.com/types/"+d[0]+"/",function(ret, status, xhr) {
+    $.getJSON("https://esi.tech.ccp.is/latest/markets/"+d[1]+"/orders/?type_id="+d[0]+"&order_type=buy&datasource=tranquility",function(ret, status, xhr) {
          var outbid = false;
          var outbidprice = parseFloat(d[2])/100;
          $(ret.items).each(function(index,order) {
