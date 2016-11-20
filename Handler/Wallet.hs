@@ -52,7 +52,11 @@ getWalletR = getWalletDetailsR 6 7
 getWalletDetailsR :: Int64 -> Int64 -> Handler Html
 getWalletDetailsR hrs days = loginOrDo (\(uid,user) -> do
              now <- liftIO getCurrentTime
-             trans <- runDB $ selectList [TransactionDateTime >. (addUTCTime ((fromIntegral $ -(hrs*3600)) :: NominalDiffTime) now)] [Desc TransactionDateTime]
+             trans <- runDB $ selectList
+                                [TransactionDateTime >. (addUTCTime ((fromIntegral $ -(hrs*3600)) :: NominalDiffTime) now)
+                                ,TransactionUser ==. uid
+                                ]
+                                [Desc TransactionDateTime]
              let profitquery = "select \
                                   min(date(date_time at time zone 'utc')) as date,\
                                   sum(CASE WHEN NOT trans_is_sell THEN quantity*price_cents ELSE 0 END) :: bigint as buy,\
