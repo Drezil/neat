@@ -1,12 +1,12 @@
 # New Eden Accounting Tool
 
-This is a complete rewrite of the New Eden Accounting Tool currently found at [http://pwning.de/neat]().
+This is a complete rewrite of the New Eden Accounting Tool currently found at [http://pwning.de/neat](http://pwning.de/neat).
 
 At the moment there is nothing much to see here but a bit of playing around with yesod. Pull-Requests are welcome anyway.
 
 ## Getting stuff to run
 
-1. Install Stack like [http://docs.haskellstack.org/en/stable/README.html]()
+1. Install Stack like [http://docs.haskellstack.org/en/stable/README.html](http://docs.haskellstack.org/en/stable/README.html)
 2. install postgres (i use v. 9.3)
 
     ```{.bash}
