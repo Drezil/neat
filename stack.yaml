@@ -5,9 +5,15 @@ resolver: lts-4.0
 
 # Local packages, usually specified by relative directory name
 packages:
-- '.'
-- deps/yesod-auth-oauth2/
-- deps/eve-api/
+- location: .
+- location:
+    git: https://github.com/Drezil/yesod-auth-oauth2.git
+    commit: 8412cb6c263b30f62c64a3be964448c09000f07c
+- location:
+    git: https://github.com/Drezil/eve-api.git
+    commit: 5775b01785c684f27bb81a9d58cf2180205de3e5
+#- deps/yesod-auth-oauth2/
+#- deps/eve-api/
 
 # Packages to be pulled from upstream that are not in the resolver (e.g., acme-missiles-0.3)
 extra-deps: []
