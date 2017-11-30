@@ -11,7 +11,7 @@ import Yesod.Default.Util   (addStaticContentExternal)
 import Yesod.Core.Types     (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
 --import Yesod.Auth.HashDB    (authHashDB)
-import Yesod.Auth.OAuth2.EveOnline (oauth2Eve,WidgetType(..))
+import Yesod.Auth.OAuth2.EveOnline (oauth2EveScoped,WidgetType(..))
 import Data.Time.Format     (parseTimeM)
 
 -- | The foundation datatype for your application. This can be a good place to
@@ -179,11 +179,64 @@ instance YesodAuth App where
     -- You can add other plugins like BrowserID, email or OAuth here
     authPlugins _ = [ --authBrowserId def
                     --, authHashDB (Just . UniqueUser)
-                      oauth2Eve "346ee0ad8f974e30be6bf422f40d891b" "kXnZd7f3pmRCvePiBPQcTL2aRcgBHSgPRxc6VNYT" BigBlack
+                      oauth2EveScoped "346ee0ad8f974e30be6bf422f40d891b" "kXnZd7f3pmRCvePiBPQcTL2aRcgBHSgPRxc6VNYT" 
+                          [ "publicData"
+                          , "characterContactsRead"
+                          , "characterLocationRead"
+                          , "characterWalletRead"
+                          , "characterAssetsRead"
+                          , "characterIndustryJobsRead"
+                          , "characterMarketOrdersRead"
+                          , "characterResearchRead"
+                          , "characterAccountRead"
+                          , "characterContractsRead"
+                          , "characterClonesRead"
+                          , "characterLoyaltyPointsRead"
+                          , "corporationWalletRead"
+                          , "corporationAssetsRead"
+                          , "corporationIndustryJobsRead"
+                          , "corporationMarketOrdersRead"
+                          , "corporationStructuresRead"
+                          , "remoteClientUI"
+                          , "esi-location.read_location.v1"
+                          , "esi-skills.read_skills.v1"
+                          , "esi-wallet.read_character_wallet.v1"
+                          , "esi-wallet.read_corporation_wallet.v1"
+                          , "esi-search.search_structures.v1"
+                          , "esi-clones.read_clones.v1"
+                          , "esi-universe.read_structures.v1"
+                          , "esi-assets.read_assets.v1"
+                          , "esi-planets.manage_planets.v1"
+                          , "esi-ui.open_window.v1"
+                          , "esi-ui.write_waypoint.v1"
+                          , "esi-markets.structure_markets.v1"
+                          , "esi-corporations.read_structures.v1"
+                          , "esi-corporations.write_structures.v1"
+                          , "esi-characters.read_standings.v1"
+                          , "esi-industry.read_character_jobs.v1"
+                          , "esi-markets.read_character_orders.v1"
+                          , "esi-contracts.read_character_contracts.v1"
+                          , "esi-clones.read_implants.v1"
+                          , "esi-corporations.track_members.v1"
+                          , "esi-wallet.read_corporation_wallets.v1"
+                          , "esi-assets.read_corporation_assets.v1"
+                          , "esi-corporations.read_blueprints.v1"
+                          , "esi-contracts.read_corporation_contracts.v1"
+                          , "esi-corporations.read_standings.v1"
+                          , "esi-corporations.read_starbases.v1"
+                          , "esi-industry.read_corporation_jobs.v1"
+                          , "esi-corporations.read_container_logs.v1"
+                          , "esi-industry.read_character_mining.v1"
+                          , "esi-industry.read_corporation_mining.v1"
+                          , "esi-planets.read_customs_offices.v1"
+                          , "esi-corporations.read_outposts.v1"
+                          ]
+                          widget
                     ]
+        where
+             widget = [whamlet|<img src="https://images.contentful.com/idjq7aai9ylm/4fSjj56uD6CYwYyus4KmES/4f6385c91e6de56274d99496e6adebab/EVE_SSO_Login_Buttons_Large_Black.png?w=270&h=45">|]
 
     authHttpManager = getHttpManager
-
 instance YesodAuthPersist App
 
 -- This instance is required to use forms. You can modify renderMessage to
